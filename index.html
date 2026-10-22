@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- DRAFT: placeholder content. Real photos, names, prices, stories and Razorpay links come from the brand. -->
 <title>Outcast · Graphic streetwear, shipped all over India</title>
-<meta name="description" content="Outcast makes graphic oversized tees, hoodies and custom designs. Order by Instagram DM. Shipping all over India.">
+<meta name="description" content="Outcast makes graphic oversized tees, hoodies and custom designs. Order online. Shipping all over India.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,6 +154,12 @@
   .sheet-card .how { font-size: 14px; color: var(--muted); }
   .sheet-msg { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; background: var(--surface); border: 1px dashed var(--line); padding: 12px; max-height: 190px; overflow-y: auto; }
   .sheet-row { display: grid; gap: 10px; }
+  .sheet-card .f { display: grid; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .sheet-card textarea { min-height: 76px; }
+  .sheet-sum { font-size: 14px; border-left: 3px solid var(--red); padding: 4px 0 4px 12px; }
+  .sheet-ok { border: 2px solid var(--ink); background: var(--surface); padding: 14px; display: none; gap: 8px; }
+  .sheet-ok.on { display: grid; }
+  .sheet-ok h4 { margin: 0; font: 400 20px "Archivo Black", sans-serif; text-transform: uppercase; }
   .sheet-x { justify-self: start; background: none; border: 0; color: var(--muted); font: 500 13px "Inter", sans-serif; cursor: pointer; text-decoration: underline; padding: 6px 0; }
 
   footer { border-top: 2px solid var(--ink); padding: 32px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
@@ -175,7 +181,7 @@
   <header class="hero" id="top">
     <span class="mono">Graphic streetwear · Made in India</span>
     <h1>Wear it loud.<br><em>Stay</em> outcast.</h1>
-    <p>Oversized tees, hoodies and one-off custom designs. Order by Instagram DM, delivered anywhere in India.</p>
+    <p>Oversized tees, hoodies and one-off custom designs. Order online, delivered anywhere in India. We confirm every order by message or call.</p>
   </header>
 </div>
 
@@ -200,7 +206,7 @@
     <div class="sec-head"><span class="mono">All pieces</span><h2>Shop</h2></div>
     <div class="filters" id="filters" role="group" aria-label="Filter products"></div>
     <div class="grid" id="grid"></div>
-    <p class="mono" style="margin-top:18px">Tap a piece to see it, pick your size, and order by Instagram DM.</p>
+    <p class="mono" style="margin-top:18px">Tap a piece to see it, pick your size and place your order.</p>
   </section>
 
   <section id="custom" style="padding-top:0">
@@ -210,7 +216,7 @@
           <span class="mono">One of one</span>
           <h2 style="margin-top:10px">Got an idea? We'll print it.</h2>
         </div>
-        <p>Tell us the piece, the size and what you want on it. We'll message you back on Instagram with a sketch and a price.</p>
+        <p>Tell us the piece, the size and what you want on it. We'll contact you with a sketch and a price.</p>
       </div>
       <form class="right" id="custom-form" novalidate>
         <label class="f">Your name<input type="text" id="c-name" autocomplete="name" placeholder="e.g. Aarav"></label>
@@ -220,8 +226,10 @@
         <label class="f">Size
           <select id="c-size"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
         </label>
+        <label class="f">Phone or Instagram handle<input type="text" id="c-contact" autocomplete="tel" placeholder="So we can reach you"></label>
+        <input type="text" id="c-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
         <label class="f">Your idea<textarea id="c-idea" placeholder="Describe the design, colours, any text..."></textarea></label>
-        <button class="btn red" type="submit">Send on Instagram</button>
+        <button class="btn red" type="submit" id="c-send">Send request</button>
         <div class="err" id="c-err" role="status" aria-live="polite"></div>
       </form>
     </div>
@@ -230,8 +238,8 @@
   <section id="how" style="padding-top:0">
     <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
-      <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, then tap "Order on Instagram". Your order message is copied for you. Paste it into the DM.</p></li>
-      <li><h3>Confirm in the DM</h3><p>We reply with the price, payment details and delivery time for your pincode.</p></li>
+      <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, tap "Place order" and fill in your details. No account needed.</p></li>
+      <li><h3>We confirm</h3><p>We contact you on the phone number or Instagram you gave, to confirm the price, payment and delivery time for your pincode.</p></li>
       <li><h3>We ship it</h3><p>Packed and sent to your door anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
@@ -257,12 +265,20 @@
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true">
   <div class="sheet-card">
-    <h3 id="sheet-title">Message copied</h3>
-    <p class="how">Instagram can't fill in a message for you. Tap the button, open the chat with us (on a computer it opens our profile, so click <b>Message</b>), then <b>paste</b>: <b>Cmd + V</b> (Ctrl + V on Windows), or press and hold on a phone and tap <b>Paste</b>. Then send.</p>
-    <div class="sheet-msg" id="sheet-msg"></div>
-    <div class="sheet-row">
-      <a class="btn red block" id="sheet-open" href="#" target="_blank" rel="noopener">Open Instagram</a>
-      <button class="btn block" id="sheet-copy" type="button">Copy again</button>
+    <h3 id="sheet-title">Place your order</h3>
+    <div class="sheet-sum" id="sheet-sum"></div>
+    <form id="order-form" novalidate style="display:grid;gap:12px">
+      <label class="f">Your name<input type="text" id="o-name" autocomplete="name"></label>
+      <label class="f">Phone or Instagram handle<input type="text" id="o-contact" autocomplete="tel" placeholder="So we can confirm your order"></label>
+      <label class="f">Delivery address and pincode<textarea id="o-addr" autocomplete="street-address"></textarea></label>
+      <input type="text" id="o-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+      <button class="btn red block" type="submit" id="o-send">Send order</button>
+      <div class="err" id="o-err" role="status" aria-live="polite"></div>
+      <p class="how" style="font-size:12px;color:var(--muted)">We use your details only to process this order. No payment is taken on this page.</p>
+    </form>
+    <div class="sheet-ok" id="sheet-ok" role="status" aria-live="polite">
+      <h4>Order sent</h4>
+      <p id="sheet-ok-text"></p>
     </div>
     <button class="sheet-x" id="sheet-close" type="button">Close</button>
   </div>
@@ -271,20 +287,26 @@
 <script>
   /* =========================================================
      SETTINGS the brand fills in
-     instagram: the brand's Instagram username (no @).
+     instagram: the brand's Instagram username (no @), shown as a fallback contact.
+     orderEndpoint: where orders are sent. Create a free form on Formspree (or similar) with the brand's email and paste
+                    its form URL here, e.g. "https://formspree.io/f/xxxxxxxx". Leave "" for demo mode (nothing is sent).
+     orderAccessKey: only for services that need a public key (e.g. Web3Forms). Otherwise leave "".
+                    These are public values by design. Never put a password or a Razorpay key secret here.
      products: replace the placeholders.
        photo:    path to an image in /images (e.g. "images/tee-01.jpg"), or "" for a placeholder tile.
        price:    e.g. "₹999", or "" to show "Price in DM".
        headline / story / details: the text on the piece's page. Short and in the brand's voice.
        payLink:  the PUBLIC Razorpay Payment Link / Payment Page URL (https://rzp.io/...), created in the brand's own
-                 Razorpay dashboard. Leave "" to show only "Order on Instagram".
+                 Razorpay dashboard. Shown as a "Pay now" button after the customer sends their order details.
+                 Leave "" and the brand confirms payment by message instead.
      Never put a Razorpay key secret in this file. Only the public payment link goes here.
-     Instagram cannot pre-fill a DM, so the order message is copied to the clipboard and the DM opens.
      ========================================================= */
   var STORY = "Tell the story of this piece here: where the design came from, the fabric, the fit.";
   var CONFIG = {
     brand: "Outcast",
     instagram: "outcastt.in",
+    orderEndpoint: "",
+    orderAccessKey: "",
     products: [
       { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
       { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
@@ -299,41 +321,67 @@
 
   (function () {
     var P = CONFIG.products;
-    var dmUrl = "https://ig.me/m/" + encodeURIComponent(CONFIG.instagram);
     document.getElementById("yr").textContent = new Date().getFullYear();
 
     function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
     function pad(n) { return (n < 10 ? "0" : "") + n; }
 
-    /* order via Instagram: copy the message, then show a panel with the message and an "Open DM" button */
-    var sheet = document.getElementById("sheet"), sheetMsg = document.getElementById("sheet-msg"), sheetOpen = document.getElementById("sheet-open"), sheetCopy = document.getElementById("sheet-copy"), sheetClose = document.getElementById("sheet-close"), sheetTitle = document.getElementById("sheet-title"), sheetFrom = null, current = "";
-    sheetOpen.href = dmUrl;
-    function copyText(t) {
-      try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t); return true; } } catch (e) {}
-      try { var ta = document.createElement("textarea"); ta.value = t; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select(); var ok = document.execCommand("copy"); document.body.removeChild(ta); return ok; } catch (e) {}
-      return false;
+    /* sending orders: posts to a free form service (endpoint in CONFIG) so the brand receives each order */
+    function sendOrder(fields, subject) {
+      if (!CONFIG.orderEndpoint) return Promise.resolve({ demo: true });
+      var body = {}; for (var k in fields) body[k] = fields[k];
+      body._subject = subject;
+      if (CONFIG.orderAccessKey) body.access_key = CONFIG.orderAccessKey;
+      return fetch(CONFIG.orderEndpoint, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { if (!r.ok) throw new Error("send failed"); return { ok: true }; });
     }
+    var FAIL = "Couldn't send. Check your connection and try again, or DM us on Instagram @" + CONFIG.instagram + ".";
+
+    var sheet = document.getElementById("sheet"), sheetSum = document.getElementById("sheet-sum"), form = document.getElementById("order-form"), oErr = document.getElementById("o-err"), oSend = document.getElementById("o-send"), ok = document.getElementById("sheet-ok"), okText = document.getElementById("sheet-ok-text"), sheetClose = document.getElementById("sheet-close"), sheetFrom = null, pending = null;
     function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); if (sheetFrom && document.body.contains(sheetFrom)) sheetFrom.focus(); }
-    function orderViaInstagram(msg) {
-      current = msg; sheetFrom = document.activeElement;
-      var ok = copyText(msg);
-      sheetTitle.textContent = ok ? "Message copied" : "Copy your message";
-      sheetCopy.textContent = ok ? "Copy again" : "Copy message";
-      sheetMsg.textContent = msg;
-      sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
-      sheetOpen.focus();
+    function showDone(contact, demo) {
+      form.style.display = "none"; ok.classList.add("on");
+      okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them." : "Thanks! We'll contact you on " + contact + " to confirm the price and delivery time.";
+      var old = document.getElementById("sheet-pay"); if (old) old.remove();
+      if (pending && pending.pay) {
+        var a = el("a", "btn dark block", "Pay now (UPI / card)"); a.id = "sheet-pay"; a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
+        ok.appendChild(a); ok.appendChild(el("p", "note", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
+        a.focus();
+      } else sheetClose.focus();
     }
-    sheetCopy.onclick = function () { var ok = copyText(current); sheetCopy.textContent = ok ? "Copied ✓" : "Select the text above and copy it"; };
+    function openOrder(p, size, qty, from) {
+      sheetFrom = from || document.activeElement;
+      pending = { piece: p.name + " (" + p.type + ")", size: size, quantity: String(qty), pay: (p.payLink && /^https:\/\//.test(p.payLink)) ? p.payLink : "" };
+      sheetSum.textContent = p.name + " · size " + size + " · quantity " + qty;
+      form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
+      sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
+      document.getElementById("o-name").focus();
+    }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = document.getElementById("o-name").value.trim(), contact = document.getElementById("o-contact").value.trim(), addr = document.getElementById("o-addr").value.trim();
+      if (!name) { oErr.textContent = "Add your name."; return; }
+      if (contact.length < 5) { oErr.textContent = "Add a phone number or Instagram handle so we can reach you."; return; }
+      if (addr.length < 10) { oErr.textContent = "Add your full delivery address and pincode."; return; }
+      oErr.textContent = "";
+      if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
+      oSend.disabled = true; oSend.textContent = "Sending...";
+      sendOrder({ name: name, contact: contact, address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity }, "New order: " + pending.piece)
+        .then(function (r) { showDone(contact, !!r.demo); })
+        .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
+    });
     sheetClose.onclick = closeSheet;
     sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
     document.addEventListener("keydown", function (e) {
       if (!sheet.classList.contains("open")) return;
       if (e.key === "Escape") { e.stopPropagation(); closeSheet(); return; }
       if (e.key === "Tab") {
+        var f = [].slice.call(sheet.querySelectorAll("input:not([aria-hidden]), textarea, button:not([disabled])")).filter(function (x) { return x.offsetParent !== null; });
+        if (!f.length) return;
         e.stopPropagation();
-        var f = [sheetOpen, sheetCopy, sheetClose], i = f.indexOf(document.activeElement);
-        e.preventDefault();
-        f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus();
+        var i = f.indexOf(document.activeElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
       }
     }, true);
 
@@ -416,17 +464,13 @@
       minus.onclick = function () { n = Math.max(1, n - 1); out.textContent = n; };
       plus.onclick = function () { n = Math.min(10, n + 1); out.textContent = n; };
       qty.appendChild(minus); qty.appendChild(out); qty.appendChild(plus); q.appendChild(qty); mBuy.appendChild(q);
-      if (p.payLink && /^https:\/\//.test(p.payLink)) {
-        var pay = el("a", "btn dark block", "Pay now (UPI / card)"); pay.href = p.payLink; pay.target = "_blank"; pay.rel = "noopener"; mBuy.appendChild(pay);
-        mBuy.appendChild(el("p", "note", "After paying, DM us your size and address."));
-      }
-      var order = el("button", "btn red block", "Order on Instagram"); order.type = "button";
+      var order = el("button", "btn red block", "Place order"); order.type = "button";
       order.onclick = function () {
         var size = modal.querySelector("input[name=msize]:checked").value;
-        orderViaInstagram("Hi " + CONFIG.brand + ", I'd like to order:\n" + p.name + " (" + p.type + ")\nSize: " + size + "\nQuantity: " + n + "\n\nMy name:\nMy address and pincode:");
+        openOrder(p, size, n, order);
       };
       mBuy.appendChild(order);
-      mBuy.appendChild(el("p", "note", "Shipping all over India. We confirm the price and delivery time in the DM."));
+      mBuy.appendChild(el("p", "note", "Shipping all over India. We confirm the price and delivery time after you order."));
 
       modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); document.body.classList.add("lock"); modal.scrollTop = 0;
       try { history.replaceState(null, "", "#piece-" + (i + 1)); } catch (e) {}
@@ -457,11 +501,16 @@
     /* custom design form */
     document.getElementById("custom-form").addEventListener("submit", function (e) {
       e.preventDefault();
-      var nme = document.getElementById("c-name").value.trim(), idea = document.getElementById("c-idea").value.trim(), err = document.getElementById("c-err");
+      var nme = document.getElementById("c-name").value.trim(), con = document.getElementById("c-contact").value.trim(), idea = document.getElementById("c-idea").value.trim(), err = document.getElementById("c-err"), btn = document.getElementById("c-send");
       if (!nme) { err.textContent = "Add your name."; return; }
+      if (con.length < 5) { err.textContent = "Add a phone number or Instagram handle so we can reach you."; return; }
       if (idea.length < 8) { err.textContent = "Describe your idea in a sentence or two."; return; }
       err.textContent = "";
-      orderViaInstagram("Hi " + CONFIG.brand + ", I'd like a custom design.\n\nName: " + nme + "\nPiece: " + document.getElementById("c-piece").value + "\nSize: " + document.getElementById("c-size").value + "\nIdea: " + idea);
+      if (document.getElementById("c-trap").value) { err.textContent = "Request sent. We'll be in touch."; return; }
+      btn.disabled = true; btn.textContent = "Sending...";
+      sendOrder({ name: nme, contact: con, piece: document.getElementById("c-piece").value, size: document.getElementById("c-size").value, idea: idea }, "Custom design request from " + nme)
+        .then(function (r) { err.style.color = "#1B7A3A"; err.textContent = r.demo ? "Demo mode: nothing was sent. Requests will go straight to the brand once their inbox is connected." : "Request sent. We'll contact you on " + con + " with a sketch and a price."; btn.textContent = "Sent ✓"; })
+        .catch(function () { err.style.color = ""; err.textContent = FAIL; btn.disabled = false; btn.textContent = "Send request"; });
     });
   })();
 </script>
