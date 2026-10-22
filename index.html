@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- DRAFT: placeholder content. Real photos, names, prices and Razorpay links come from the brand. -->
+<!-- DRAFT: placeholder content. Real photos, names, prices, stories and Razorpay links come from the brand. -->
 <title>Outcast · Graphic streetwear, shipped all over India</title>
 <meta name="description" content="Outcast makes graphic oversized tees, hoodies and custom designs. Order by Instagram DM. Shipping all over India.">
 <meta name="robots" content="noindex, nofollow">
@@ -12,106 +12,143 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
   :root {
-    --bg: #0B0B0B;
-    --surface: #151515;
-    --line: #2A2A2A;
-    --ink: #F2F0EA;
-    --muted: #9A9892;
+    --bg: #F4F3EF;
+    --surface: #FFFFFF;
+    --ink: #0E0E0E;
+    --muted: #6B6963;
+    --line: #D9D7D0;
     --red: #E0261D;
     --red-ink: #FFFFFF;
+    --sw: min(72vw, 400px);
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  body.lock { overflow: hidden; }
   .wrap { max-width: 72rem; margin: 0 auto; padding: 0 20px; }
   a { color: inherit; }
-  h1, h2, h3 { margin: 0; font-family: "Archivo Black", Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.95; }
+  h1, h2, h3 { margin: 0; font-family: "Archivo Black", Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: -0.01em; line-height: .95; }
   p { margin: 0; }
+  button { font-family: inherit; }
   :focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
   .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
   .draft { background: var(--red); color: var(--red-ink); text-align: center; font-size: 13px; padding: 7px 16px; }
 
-  nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; gap: 16px; }
+  /* nav */
+  nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 18px 0; gap: 12px; }
+  .nav-l, .nav-r { display: flex; gap: 22px; align-items: center; font-size: 14px; font-weight: 500; }
+  .nav-r { justify-content: flex-end; }
+  .nav-l a, .nav-r a:not(.btn) { text-decoration: none; }
+  .nav-l a:hover { color: var(--red); }
   .logo { font-family: "Archivo Black", sans-serif; font-size: 26px; text-decoration: none; text-transform: lowercase; letter-spacing: -0.02em; }
   .logo span { color: var(--red); }
-  .nav-links { display: flex; gap: 22px; align-items: center; font-size: 14px; font-weight: 500; }
-  .nav-links a { text-decoration: none; }
-  .nav-links a:hover { color: var(--red); }
-  @media (max-width: 640px) { .nav-links .hide-sm { display: none; } }
+  @media (max-width: 640px) { nav { grid-template-columns: auto 1fr; } .nav-l { display: none; } .logo { justify-self: start; } }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 22px; border: 2px solid var(--ink); border-radius: 0; font: 600 14px/1 "Inter", sans-serif; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; background: transparent; color: var(--ink); cursor: pointer; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 22px; border: 2px solid var(--ink); border-radius: 0; font: 600 13px/1 "Inter", sans-serif; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; background: transparent; color: var(--ink); cursor: pointer; }
   .btn:hover { background: var(--ink); color: var(--bg); }
   .btn.red { background: var(--red); border-color: var(--red); color: var(--red-ink); }
   .btn.red:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .btn.dark { background: var(--ink); color: var(--bg); }
+  .btn.dark:hover { background: var(--red); border-color: var(--red); color: var(--red-ink); }
   .btn.small { padding: 11px 16px; font-size: 12px; }
+  .btn.block { width: 100%; }
 
-  .hero { padding: 56px 0 72px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: end; }
-  @media (max-width: 820px) { .hero { grid-template-columns: 1fr; padding-top: 32px; } }
-  .hero h1 { font-size: clamp(52px, 11vw, 140px); margin-top: 14px; }
+  /* hero + carousel */
+  .hero { padding: 36px 0 8px; text-align: center; }
+  .hero h1 { font-size: clamp(46px, 9vw, 110px); margin-top: 12px; }
   .hero h1 em { font-style: normal; color: var(--red); }
-  .hero p { color: var(--muted); max-width: 30rem; margin-top: 22px; font-size: 18px; }
-  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
-  .stamp { border: 2px solid var(--line); padding: 22px; display: grid; gap: 14px; }
-  .stamp b { font-family: "Archivo Black", sans-serif; font-weight: 400; font-size: 22px; text-transform: uppercase; }
-  .stamp li { list-style: none; display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 10px; font-size: 15px; }
-  .stamp ul { margin: 0; padding: 0; display: grid; gap: 10px; }
-  .stamp li span:last-child { color: var(--muted); text-align: right; }
+  .hero p { color: var(--muted); max-width: 30rem; margin: 18px auto 0; font-size: 17px; }
 
-  .marquee { background: var(--red); color: var(--red-ink); overflow: hidden; border-block: 2px solid var(--ink); }
-  .track { display: flex; width: max-content; animation: slide 30s linear infinite; }
-  .track span { font-family: "Archivo Black", sans-serif; text-transform: uppercase; font-size: 18px; padding: 12px 0; white-space: nowrap; }
-  .track span::after { content: "★"; margin: 0 22px; }
+  .stage { position: relative; padding: 28px 0 8px; }
+  .track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px calc(50% - var(--sw) / 2); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .track::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 var(--sw); scroll-snap-align: center; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; opacity: .35; transform: scale(.9); transition: opacity .3s, transform .3s; color: inherit; }
+  .slide.on { opacity: 1; transform: none; }
+  .frame { aspect-ratio: 4/5; width: 100%; background: repeating-linear-gradient(45deg, #E9E7E0 0 12px, #E1DFD7 12px 24px); display: grid; place-items: center; text-align: center; padding: 18px; color: var(--muted); font-size: 13px; position: relative; overflow: hidden; border: 2px solid var(--ink); }
+  .frame b { display: block; font-family: "Archivo Black", sans-serif; font-weight: 400; font-size: 20px; color: var(--ink); text-transform: uppercase; }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .frame .tag { position: absolute; top: 10px; left: 10px; background: var(--red); color: var(--red-ink); font: 600 11px "Inter", sans-serif; padding: 3px 8px; letter-spacing: .06em; text-transform: uppercase; z-index: 1; }
+  .cap { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; font-size: 14px; font-weight: 500; }
+  .cap span:last-child { color: var(--muted); }
+  .ctrl { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 14px 0 0; }
+  .arrow { width: 44px; height: 44px; border: 2px solid var(--ink); background: none; color: var(--ink); font-size: 18px; cursor: pointer; }
+  .arrow:hover { background: var(--ink); color: var(--bg); }
+  .count { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: .1em; min-width: 70px; text-align: center; }
+
+  .band { background: var(--ink); color: var(--bg); overflow: hidden; margin-top: 40px; }
+  .band-track { display: flex; width: max-content; animation: slide 32s linear infinite; }
+  .band-track span { font-family: "Archivo Black", sans-serif; text-transform: uppercase; font-size: 17px; padding: 13px 0; white-space: nowrap; }
+  .band-track span::after { content: "★"; color: var(--red); margin: 0 22px; }
   @keyframes slide { to { transform: translateX(-50%); } }
 
-  section { padding: 80px 0; }
-  .sec-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
-  .sec-head h2 { font-size: clamp(34px, 6vw, 64px); }
+  section { padding: 72px 0; }
+  .sec-head { margin-bottom: 28px; }
+  .sec-head h2 { font-size: clamp(32px, 5.5vw, 60px); margin-top: 10px; }
 
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
   .chip { border: 2px solid var(--line); background: none; color: var(--ink); padding: 8px 14px; font: 600 12px "Inter", sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
   .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
   @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 440px) { .grid { grid-template-columns: 1fr; } }
-  .card { border: 2px solid var(--line); background: var(--surface); display: grid; }
-  .shot { aspect-ratio: 4/5; display: grid; place-items: center; text-align: center; padding: 16px; background:
-      repeating-linear-gradient(45deg, #1b1b1b 0 12px, #161616 12px 24px); color: var(--muted); font-size: 13px; position: relative; }
-  .shot b { display: block; font-family: "Archivo Black", sans-serif; font-weight: 400; font-size: 18px; color: var(--ink); text-transform: uppercase; }
-  .shot .tag { position: absolute; top: 10px; left: 10px; background: var(--red); color: var(--red-ink); font: 600 11px "Inter", sans-serif; padding: 3px 8px; letter-spacing: .06em; text-transform: uppercase; }
-  .info { padding: 14px; display: grid; gap: 10px; }
-  .info h3 { font-size: 17px; line-height: 1.05; }
-  .price { color: var(--muted); font-size: 14px; }
-  .sizes { display: flex; gap: 6px; flex-wrap: wrap; }
+  @media (max-width: 440px) { .grid { gap: 12px; } }
+  .grid .slide { opacity: 1; transform: none; flex: none; }
+  .grid .slide:hover .frame { border-color: var(--red); }
+
+  /* product page (modal) */
+  .modal { position: fixed; inset: 0; background: var(--bg); z-index: 40; overflow-y: auto; display: none; }
+  .modal.open { display: block; }
+  .m-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .m-close { border: 2px solid var(--ink); background: none; color: var(--ink); padding: 9px 14px; font: 600 12px "Inter", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .m-close:hover { background: var(--ink); color: var(--bg); }
+  .m-body { max-width: 74rem; margin: 0 auto; padding: 32px 20px 64px; display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 900px) { .m-body { grid-template-columns: 1fr; gap: 22px; } .m-img { order: -1; } }
+  .m-story h2 { font-size: clamp(32px, 4.4vw, 52px); margin: 10px 0 16px; }
+  .m-story p { color: var(--muted); max-width: 28rem; }
+  .m-story ul { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+  .m-story li { border-top: 1px solid var(--line); padding-top: 8px; display: flex; justify-content: space-between; gap: 12px; }
+  .m-story li span:last-child { color: var(--muted); text-align: right; }
+  .m-buy { display: grid; gap: 16px; align-content: start; }
+  .m-buy h3 { font-size: 28px; }
+  .m-price { font-size: 18px; font-weight: 600; }
+  .lbl { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .sizes { display: flex; gap: 8px; flex-wrap: wrap; }
   .sizes label { cursor: pointer; }
   .sizes input { position: absolute; opacity: 0; pointer-events: none; }
-  .sizes span { display: inline-block; min-width: 34px; text-align: center; border: 1.5px solid var(--line); padding: 5px 0; font-size: 12px; font-weight: 600; }
+  .sizes span { display: inline-block; min-width: 46px; text-align: center; border: 2px solid var(--line); padding: 9px 0; font-size: 13px; font-weight: 600; background: var(--surface); }
   .sizes input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .sizes input:focus-visible + span { outline: 3px solid var(--red); outline-offset: 2px; }
+  .qty { display: inline-flex; border: 2px solid var(--line); background: var(--surface); }
+  .qty button { width: 42px; height: 42px; border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--ink); }
+  .qty button:hover { background: var(--ink); color: var(--bg); }
+  .qty output { min-width: 44px; display: grid; place-items: center; font-weight: 600; }
+  .note { font-size: 13px; color: var(--muted); }
 
-  .custom { border: 2px solid var(--ink); display: grid; grid-template-columns: 1fr 1fr; }
+  /* custom */
+  .custom { border: 2px solid var(--ink); display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }
   @media (max-width: 820px) { .custom { grid-template-columns: 1fr; } }
-  .custom .left { padding: 36px; background: var(--red); color: var(--red-ink); display: grid; gap: 18px; align-content: space-between; }
-  .custom .left h2 { font-size: clamp(34px, 5vw, 58px); }
+  .custom .left { padding: 34px; background: var(--ink); color: var(--bg); display: grid; gap: 18px; align-content: space-between; }
+  .custom .left h2 { font-size: clamp(32px, 4.6vw, 54px); }
+  .custom .left .mono { color: #A8A69F; }
   .custom .right { padding: 28px; display: grid; gap: 14px; align-content: start; }
   label.f { display: grid; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 500; }
-  input[type=text], select, textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 2px solid var(--line); padding: 11px 12px; width: 100%; border-radius: 0; }
+  input[type=text], select, textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 2px solid var(--line); padding: 11px 12px; width: 100%; border-radius: 0; }
   textarea { min-height: 96px; resize: vertical; }
-  .err { color: #FF8A80; font-size: 14px; min-height: 1.3em; }
-  .preview { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; background: #0f0f0f; border: 1px dashed var(--line); padding: 12px; color: var(--muted); display: none; }
+  .err { color: #B3261E; font-size: 14px; min-height: 1.3em; }
+  .preview { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; background: var(--bg); border: 1px dashed var(--line); padding: 12px; color: var(--muted); display: none; }
   .preview.on { display: block; }
 
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; list-style: none; padding: 0; margin: 0; counter-reset: s; }
   @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
   .steps li { counter-increment: s; border-top: 2px solid var(--ink); padding-top: 16px; display: grid; gap: 8px; }
   .steps li::before { content: "0" counter(s); font-family: "Archivo Black", sans-serif; font-size: 40px; color: var(--red); line-height: 1; }
   .steps h3 { font-size: 20px; }
   .steps p { color: var(--muted); }
 
-  footer { border-top: 2px solid var(--line); padding: 36px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+  footer { border-top: 2px solid var(--ink); padding: 32px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
 
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .track { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .band-track { animation: none; } .slide { transition: none; } }
 </style>
 </head>
 <body>
@@ -120,60 +157,47 @@
 
 <div class="wrap">
   <nav>
+    <div class="nav-l"><a href="#shop">Shop</a><a href="#custom">Custom</a><a href="#how">How to order</a></div>
     <a class="logo" href="#top" aria-label="Outcast home">out<span>★</span>cast</a>
-    <div class="nav-links">
-      <a class="hide-sm" href="#shop">Shop</a>
-      <a class="hide-sm" href="#custom">Custom</a>
-      <a class="hide-sm" href="#how">How to order</a>
-      <a class="btn small red" href="#shop">Shop now</a>
-    </div>
+    <div class="nav-r"><a class="btn small dark" href="#shop">Shop now</a></div>
   </nav>
 
   <header class="hero" id="top">
-    <div>
-      <span class="mono">Graphic streetwear · Made in India</span>
-      <h1>Wear it<br>loud. <em>Stay</em><br>outcast.</h1>
-      <p>Oversized tees, hoodies and one-off custom designs. Order by Instagram DM, delivered anywhere in India.</p>
-      <div class="cta-row">
-        <a class="btn red" href="#shop">Shop the drop</a>
-        <a class="btn" href="#custom">Get a custom design</a>
-      </div>
-    </div>
-    <aside class="stamp" aria-label="Quick facts">
-      <b>The basics</b>
-      <ul>
-        <li><span>Shipping</span><span>All over India</span></li>
-        <li><span>Order</span><span>Instagram DM</span></li>
-        <li><span>Custom designs</span><span>Yes</span></li>
-        <li><span>Fits</span><span>Oversized &amp; boxy</span></li>
-      </ul>
-    </aside>
+    <span class="mono">Graphic streetwear · Made in India</span>
+    <h1>Wear it loud.<br><em>Stay</em> outcast.</h1>
+    <p>Oversized tees, hoodies and one-off custom designs. Order by Instagram DM, delivered anywhere in India.</p>
   </header>
 </div>
 
-<div class="marquee" aria-hidden="true">
-  <div class="track">
+<div class="stage" aria-label="Featured pieces">
+  <div class="track" id="track" tabindex="0" aria-label="Featured pieces. Use the arrows or swipe."></div>
+  <div class="ctrl">
+    <button class="arrow" id="prev" type="button" aria-label="Previous piece">←</button>
+    <span class="count" id="count" aria-live="polite">01 / 08</span>
+    <button class="arrow" id="next" type="button" aria-label="Next piece">→</button>
+  </div>
+</div>
+
+<div class="band" aria-hidden="true">
+  <div class="band-track">
     <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Shipping all India</span>
     <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Shipping all India</span>
   </div>
 </div>
 
 <div class="wrap">
-
   <section id="shop">
-    <div class="sec-head">
-      <div><span class="mono">The drop</span><h2 style="margin-top:10px">Shop</h2></div>
-    </div>
+    <div class="sec-head"><span class="mono">All pieces</span><h2>Shop</h2></div>
     <div class="filters" id="filters" role="group" aria-label="Filter products"></div>
     <div class="grid" id="grid"></div>
-    <p class="mono" style="margin-top:20px" id="shop-note"></p>
+    <p class="mono" style="margin-top:18px">Tap a piece to see it, pick your size, and order by Instagram DM.</p>
   </section>
 
   <section id="custom" style="padding-top:0">
     <div class="custom">
       <div class="left">
         <div>
-          <span class="mono" style="color:rgba(255,255,255,.8)">One of one</span>
+          <span class="mono">One of one</span>
           <h2 style="margin-top:10px">Got an idea? We'll print it.</h2>
         </div>
         <p>Tell us the piece, the size and what you want on it. We'll message you back on Instagram with a sketch and a price.</p>
@@ -181,13 +205,7 @@
       <form class="right" id="custom-form" novalidate>
         <label class="f">Your name<input type="text" id="c-name" autocomplete="name" placeholder="e.g. Aarav"></label>
         <label class="f">Piece
-          <select id="c-piece">
-            <option>Oversized tee</option>
-            <option>Boxy crop tee</option>
-            <option>Hoodie</option>
-            <option>Zip hoodie</option>
-            <option>Long sleeve</option>
-          </select>
+          <select id="c-piece"><option>Oversized tee</option><option>Boxy crop tee</option><option>Hoodie</option><option>Zip hoodie</option><option>Long sleeve</option></select>
         </label>
         <label class="f">Size
           <select id="c-size"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
@@ -201,9 +219,9 @@
   </section>
 
   <section id="how" style="padding-top:0">
-    <div class="sec-head"><div><span class="mono">Simple</span><h2 style="margin-top:10px">How to order</h2></div></div>
+    <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
-      <li><h3>Pick a piece</h3><p>Choose a design and your size, then tap "Order on Instagram". Your order message is copied for you. Paste it into the DM.</p></li>
+      <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, then tap "Order on Instagram". Your order message is copied for you. Paste it into the DM.</p></li>
       <li><h3>Confirm in the DM</h3><p>We reply with the price, payment details and delivery time for your pincode.</p></li>
       <li><h3>We ship it</h3><p>Packed and sent to your door anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
@@ -215,45 +233,62 @@
   </footer>
 </div>
 
+<!-- product page -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" aria-hidden="true">
+  <div class="m-top">
+    <a class="logo" href="#top" id="m-logo" aria-label="Outcast">out<span>★</span>cast</a>
+    <button class="m-close" id="m-close" type="button">Close ✕</button>
+  </div>
+  <div class="m-body">
+    <div class="m-story" id="m-story"></div>
+    <div class="m-img" id="m-img"></div>
+    <div class="m-buy" id="m-buy"></div>
+  </div>
+</div>
+
 <script>
   /* =========================================================
      SETTINGS the brand fills in
      instagram: the brand's Instagram username (no @).
-     products: replace the placeholders. photo: path to an image in /images, or "" for a placeholder tile.
-               price: e.g. "₹999", or "" to show "Price in DM".
-               payLink: the PUBLIC Razorpay Payment Link / Payment Page URL for that product (https://rzp.io/...),
-                        created in the brand's own Razorpay dashboard. Leave "" to show only "Order on Instagram".
-               Never put a Razorpay key secret in this file. Only the public payment link goes here.
+     products: replace the placeholders.
+       photo:    path to an image in /images (e.g. "images/tee-01.jpg"), or "" for a placeholder tile.
+       price:    e.g. "₹999", or "" to show "Price in DM".
+       headline / story / details: the text on the piece's page. Short and in the brand's voice.
+       payLink:  the PUBLIC Razorpay Payment Link / Payment Page URL (https://rzp.io/...), created in the brand's own
+                 Razorpay dashboard. Leave "" to show only "Order on Instagram".
+     Never put a Razorpay key secret in this file. Only the public payment link goes here.
      Instagram cannot pre-fill a DM, so the order message is copied to the clipboard and the DM opens.
      ========================================================= */
+  var STORY = "Tell the story of this piece here: where the design came from, the fabric, the fit.";
   var CONFIG = {
     brand: "Outcast",
     instagram: "outcastt.in",
     products: [
-      { name: "Graphic Tee 01",    type: "Oversized tee", price: "", photo: "", payLink: "", tag: "New" },
-      { name: "Graphic Tee 02",    type: "Oversized tee", price: "", photo: "", payLink: "" },
-      { name: "Graphic Tee 03",    type: "Oversized tee", price: "", photo: "", payLink: "" },
-      { name: "Ringer Tee 01",     type: "Ringer tee",    price: "", photo: "", payLink: "" },
-      { name: "Boxy Crop Tee 01",  type: "Boxy crop tee", price: "", photo: "", payLink: "" },
-      { name: "Heavy Hoodie 01",   type: "Hoodie",        price: "", photo: "", payLink: "", tag: "New" },
-      { name: "Heavy Hoodie 02",   type: "Hoodie",        price: "", photo: "", payLink: "" },
-      { name: "Zip Hoodie 01",     type: "Zip hoodie",    price: "", photo: "", payLink: "" }
+      { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Graphic Tee 03",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Ringer Tee 01",    type: "Ringer tee",    price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Boxy Crop Tee 01", type: "Boxy crop tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Boxy crop"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Heavy Hoodie 01",  type: "Hoodie",        price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Heavy Hoodie 02",  type: "Hoodie",        price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Zip Hoodie 01",    type: "Zip hoodie",    price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] }
     ]
   };
 
   (function () {
-    document.getElementById("yr").textContent = new Date().getFullYear();
+    var P = CONFIG.products;
     var dmUrl = "https://ig.me/m/" + encodeURIComponent(CONFIG.instagram);
+    document.getElementById("yr").textContent = new Date().getFullYear();
 
     function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
 
-    var toast = el("div", null); toast.setAttribute("role", "status"); toast.setAttribute("aria-live", "polite");
-    toast.style.cssText = "position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#F2F0EA;color:#0B0B0B;padding:12px 18px;font:600 14px Inter,sans-serif;max-width:90vw;text-align:center;display:none;z-index:50;border:2px solid #E0261D";
+    /* toast + order via Instagram (copy message, open DM) */
+    var toast = el("div"); toast.setAttribute("role", "status"); toast.setAttribute("aria-live", "polite");
+    toast.style.cssText = "position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0E0E0E;color:#F4F3EF;padding:12px 18px;font:600 14px Inter,sans-serif;max-width:90vw;text-align:center;display:none;z-index:60;border:2px solid #E0261D";
     document.body.appendChild(toast);
     var toastTimer;
     function say(t) { toast.textContent = t; toast.style.display = "block"; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.style.display = "none"; }, 6000); }
-
-    // Copy the message, then open the DM. Both run directly inside the click so browsers allow them.
     function orderViaInstagram(msg, previewEl) {
       if (previewEl) { previewEl.textContent = msg; previewEl.classList.add("on"); }
       var copied = false;
@@ -262,12 +297,46 @@
       say(copied ? "Order message copied. Paste it into the Instagram DM." : "Copy the order message shown on the page, then paste it into the Instagram DM.");
     }
 
-    var types = ["All"];
-    CONFIG.products.forEach(function (p) { if (types.indexOf(p.type) < 0) types.push(p.type); });
-    var active = "All";
-    var fbox = document.getElementById("filters"), grid = document.getElementById("grid");
-    document.getElementById("shop-note").textContent = "Orders are taken by Instagram DM. Tap Order, then paste the copied message.";
+    function frame(p, withTag) {
+      var f = el("div", "frame");
+      if (p.photo) { var img = el("img"); img.src = p.photo; img.alt = p.name; img.loading = "lazy"; f.appendChild(img); }
+      else { var ph = el("div"); ph.appendChild(el("b", null, p.type)); ph.appendChild(document.createTextNode("Photo goes here")); f.appendChild(ph); }
+      if (withTag && p.tag) f.appendChild(el("span", "tag", p.tag));
+      return f;
+    }
+    function tile(p, i) {
+      var b = el("button", "slide"); b.type = "button"; b.setAttribute("aria-label", "View " + p.name);
+      b.appendChild(frame(p, true));
+      var cap = el("div", "cap"); cap.appendChild(el("span", null, p.name)); cap.appendChild(el("span", null, p.price || "Price in DM"));
+      b.appendChild(cap);
+      b.onclick = function () { openPiece(P.indexOf(p), b); };
+      return b;
+    }
 
+    /* carousel */
+    var track = document.getElementById("track"), count = document.getElementById("count"), slides = [];
+    P.forEach(function (p, i) { var s = tile(p, i); slides.push(s); track.appendChild(s); });
+    function activeIndex() {
+      var mid = track.scrollLeft + track.clientWidth / 2, best = 0, bestD = 1e9;
+      slides.forEach(function (s, i) { var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (d < bestD) { bestD = d; best = i; } });
+      return best;
+    }
+    var ticking = false;
+    function sync() {
+      var a = activeIndex();
+      slides.forEach(function (s, i) { s.classList.toggle("on", i === a); });
+      count.textContent = pad(a + 1) + " / " + pad(slides.length);
+    }
+    track.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false; sync(); }); } });
+    function step(dir) { var a = Math.max(0, Math.min(slides.length - 1, activeIndex() + dir)); track.scrollTo({ left: slides[a].offsetLeft + slides[a].offsetWidth / 2 - track.clientWidth / 2, behavior: "smooth" }); }
+    document.getElementById("prev").onclick = function () { step(-1); };
+    document.getElementById("next").onclick = function () { step(1); };
+    track.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") { e.preventDefault(); step(1); } if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); } });
+    window.addEventListener("resize", sync); sync();
+
+    /* grid + filters */
+    var types = ["All"]; P.forEach(function (p) { if (types.indexOf(p.type) < 0) types.push(p.type); });
+    var active = "All", fbox = document.getElementById("filters"), grid = document.getElementById("grid");
     function renderFilters() {
       fbox.innerHTML = "";
       types.forEach(function (t) {
@@ -278,47 +347,81 @@
     }
     function renderGrid() {
       grid.innerHTML = "";
-      CONFIG.products.filter(function (p) { return active === "All" || p.type === active; }).forEach(function (p, i) {
-        var card = el("article", "card");
-        var shot = el("div", "shot");
-        if (p.photo) { var img = el("img"); img.src = p.photo; img.alt = p.name; img.style.cssText = "width:100%;height:100%;object-fit:cover;position:absolute;inset:0"; shot.appendChild(img); }
-        else { var ph = el("div"); ph.appendChild(el("b", null, p.type)); ph.appendChild(document.createTextNode("Photo goes here")); shot.appendChild(ph); }
-        if (p.tag) shot.appendChild(el("span", "tag", p.tag));
-        card.appendChild(shot);
-        var info = el("div", "info");
-        info.appendChild(el("h3", null, p.name));
-        info.appendChild(el("div", "price", p.price || "Price in DM"));
-        var sizes = el("div", "sizes"), name = "size-" + p.name.replace(/\W/g, "") + i;
-        ["S", "M", "L", "XL", "XXL"].forEach(function (s) {
-          var lab = el("label"), inp = el("input"); inp.type = "radio"; inp.name = name; inp.value = s; if (s === "L") inp.checked = true;
-          lab.appendChild(inp); lab.appendChild(el("span", null, s)); sizes.appendChild(lab);
-        });
-        info.appendChild(sizes);
-        if (p.payLink && /^https:\/\//.test(p.payLink)) {
-          var pay = el("a", "btn small", "Pay now (UPI / card)");
-          pay.href = p.payLink; pay.target = "_blank"; pay.rel = "noopener";
-          info.appendChild(pay);
-          info.appendChild(el("div", "price", "After paying, DM us your size and address."));
-        }
-        var btn = el("button", "btn red small", "Order on Instagram"); btn.type = "button";
-        btn.onclick = function () {
-          var size = card.querySelector("input:checked").value;
-          orderViaInstagram("Hi " + CONFIG.brand + ", I'd like to order:\n" + p.name + " (" + p.type + ")\nSize: " + size + "\nQuantity: 1\n\nMy name:\nMy address and pincode:");
-        };
-        info.appendChild(btn);
-        card.appendChild(info); grid.appendChild(card);
-      });
+      P.filter(function (p) { return active === "All" || p.type === active; }).forEach(function (p, i) { grid.appendChild(tile(p, i)); });
     }
     renderFilters(); renderGrid();
 
+    /* product page */
+    var modal = document.getElementById("modal"), mStory = document.getElementById("m-story"), mImg = document.getElementById("m-img"), mBuy = document.getElementById("m-buy"), closeBtn = document.getElementById("m-close"), opener = null;
+    function openPiece(i, from) {
+      var p = P[i]; opener = from || null;
+      mStory.innerHTML = mImg.innerHTML = mBuy.innerHTML = "";
+      mStory.appendChild(el("span", "mono", "Piece No. " + pad(i + 1)));
+      var h = el("h2", null, p.headline); h.id = "m-title"; mStory.appendChild(h);
+      mStory.appendChild(el("p", null, p.story));
+      var ul = el("ul"); (p.details || []).forEach(function (d) { var li = el("li"); li.appendChild(el("span", null, d[0])); li.appendChild(el("span", null, d[1])); ul.appendChild(li); }); mStory.appendChild(ul);
+      mImg.appendChild(frame(p, true));
+
+      mBuy.appendChild(el("span", "mono", p.type));
+      mBuy.appendChild(el("h3", null, p.name));
+      mBuy.appendChild(el("div", "m-price", p.price || "Price in DM"));
+      var sz = el("div"); sz.appendChild(el("div", "lbl", "Size"));
+      var sizes = el("div", "sizes"), nm = "msize";
+      ["S", "M", "L", "XL", "XXL"].forEach(function (s) { var lab = el("label"), inp = el("input"); inp.type = "radio"; inp.name = nm; inp.value = s; if (s === "L") inp.checked = true; lab.appendChild(inp); lab.appendChild(el("span", null, s)); sizes.appendChild(lab); });
+      sz.appendChild(sizes); mBuy.appendChild(sz);
+      var q = el("div"); q.appendChild(el("div", "lbl", "Quantity"));
+      var qty = el("div", "qty"), out = el("output", null, "1"), n = 1;
+      var minus = el("button", null, "−"); minus.type = "button"; minus.setAttribute("aria-label", "Fewer");
+      var plus = el("button", null, "+"); plus.type = "button"; plus.setAttribute("aria-label", "More");
+      minus.onclick = function () { n = Math.max(1, n - 1); out.textContent = n; };
+      plus.onclick = function () { n = Math.min(10, n + 1); out.textContent = n; };
+      qty.appendChild(minus); qty.appendChild(out); qty.appendChild(plus); q.appendChild(qty); mBuy.appendChild(q);
+      if (p.payLink && /^https:\/\//.test(p.payLink)) {
+        var pay = el("a", "btn dark block", "Pay now (UPI / card)"); pay.href = p.payLink; pay.target = "_blank"; pay.rel = "noopener"; mBuy.appendChild(pay);
+        mBuy.appendChild(el("p", "note", "After paying, DM us your size and address."));
+      }
+      var order = el("button", "btn red block", "Order on Instagram"); order.type = "button";
+      order.onclick = function () {
+        var size = modal.querySelector("input[name=msize]:checked").value;
+        orderViaInstagram("Hi " + CONFIG.brand + ", I'd like to order:\n" + p.name + " (" + p.type + ")\nSize: " + size + "\nQuantity: " + n + "\n\nMy name:\nMy address and pincode:");
+      };
+      mBuy.appendChild(order);
+      mBuy.appendChild(el("p", "note", "Shipping all over India. We confirm the price and delivery time in the DM."));
+
+      modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); document.body.classList.add("lock"); modal.scrollTop = 0;
+      try { history.replaceState(null, "", "#piece-" + (i + 1)); } catch (e) {}
+      closeBtn.focus();
+    }
+    function closePiece() {
+      modal.classList.remove("open"); modal.setAttribute("aria-hidden", "true"); document.body.classList.remove("lock");
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      if (opener && document.body.contains(opener)) opener.focus();
+    }
+    closeBtn.onclick = closePiece;
+    document.getElementById("m-logo").onclick = function (e) { e.preventDefault(); closePiece(); };
+    document.addEventListener("keydown", function (e) {
+      if (!modal.classList.contains("open")) return;
+      if (e.key === "Escape") { closePiece(); return; }
+      if (e.key === "Tab") {
+        var f = modal.querySelectorAll("a[href], button, input:not([type=hidden])"), vis = [];
+        f.forEach(function (x) { if (x.offsetParent !== null || x.type === "radio") vis.push(x); });
+        if (!vis.length) return;
+        var first = vis[0], last = vis[vis.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    var m = /^#piece-(\d+)$/.exec(location.hash);
+    if (m && P[+m[1] - 1]) openPiece(+m[1] - 1, null);
+
+    /* custom design form */
     document.getElementById("custom-form").addEventListener("submit", function (e) {
       e.preventDefault();
-      var n = document.getElementById("c-name").value.trim(), idea = document.getElementById("c-idea").value.trim();
-      var err = document.getElementById("c-err");
-      if (!n) { err.textContent = "Add your name."; return; }
+      var nme = document.getElementById("c-name").value.trim(), idea = document.getElementById("c-idea").value.trim(), err = document.getElementById("c-err");
+      if (!nme) { err.textContent = "Add your name."; return; }
       if (idea.length < 8) { err.textContent = "Describe your idea in a sentence or two."; return; }
       err.textContent = "";
-      orderViaInstagram("Hi " + CONFIG.brand + ", I'd like a custom design.\n\nName: " + n + "\nPiece: " + document.getElementById("c-piece").value + "\nSize: " + document.getElementById("c-size").value + "\nIdea: " + idea, document.getElementById("c-preview"));
+      orderViaInstagram("Hi " + CONFIG.brand + ", I'd like a custom design.\n\nName: " + nme + "\nPiece: " + document.getElementById("c-piece").value + "\nSize: " + document.getElementById("c-size").value + "\nIdea: " + idea, document.getElementById("c-preview"));
     });
   })();
 </script>
