@@ -291,7 +291,8 @@
      orderEndpoint: where orders are sent. Create a free form on Formspree (or similar) with the brand's email and paste
                     its form URL here, e.g. "https://formspree.io/f/xxxxxxxx". Leave "" for demo mode (nothing is sent).
      orderAccessKey: only for services that need a public key (e.g. Web3Forms). Otherwise leave "".
-                    These are public values by design. Never put a password or a Razorpay key secret here.
+                    Currently Web3Forms, sending orders to Daksh's Gmail. To change the inbox, get a new key with the new email
+                    at web3forms.com and replace orderAccessKey. These are public values by design. Never put a password or a Razorpay key secret here.
      products: replace the placeholders.
        photo:    path to an image in /images (e.g. "images/tee-01.jpg"), or "" for a placeholder tile.
        price:    e.g. "₹999", or "" to show "Price in DM".
@@ -305,8 +306,8 @@
   var CONFIG = {
     brand: "Outcast",
     instagram: "outcastt.in",
-    orderEndpoint: "",
-    orderAccessKey: "",
+    orderEndpoint: "https://api.web3forms.com/submit",
+    orderAccessKey: "28afb220-e3ef-4fd4-838c-7a3d3e4d1906",
     products: [
       { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
       { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
@@ -330,7 +331,7 @@
     function sendOrder(fields, subject) {
       if (!CONFIG.orderEndpoint) return Promise.resolve({ demo: true });
       var body = {}; for (var k in fields) body[k] = fields[k];
-      body._subject = subject;
+      body._subject = subject; body.subject = subject;
       if (CONFIG.orderAccessKey) body.access_key = CONFIG.orderAccessKey;
       return fetch(CONFIG.orderEndpoint, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { if (!r.ok) throw new Error("send failed"); return { ok: true }; });
