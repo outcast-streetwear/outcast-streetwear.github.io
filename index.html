@@ -131,7 +131,8 @@
   .pv { position: relative; display: grid; gap: 14px; }
   .pv-g { position: relative; width: 100%; aspect-ratio: 1/1; background: #ECEAE3; display: grid; place-items: center; padding: 9%; }
   .pv-g .garment { height: 100%; display: flex; align-items: center; justify-content: center; }
-  .pv-g .g-img { max-height: 100%; width: auto; max-width: 100%; }
+  .pv-g .g-img { height: 100%; width: 100%; object-fit: contain; transition: opacity .18s; }
+  .pv-g .g-img.fade { opacity: 0; }
   .pv-ctrl { display: flex; align-items: center; justify-content: center; gap: 14px; }
   .pv-g .tag-hang { width: 62px; font-size: 13px; right: 4%; top: 22%; }
   .pv-toggle { display: inline-flex; border: 2px solid var(--ink); }
@@ -390,8 +391,8 @@
       piece("Restricted Tee",              "Oversized tee", "restricted-front", "", "", "Oversized"),
       piece("Venom Zip Hoodie",            "Zip hoodie",    "venom-zip-front", "venom-zip-back", "", "Regular"),
       piece("Cat Guitar Ringer Tee",       "Ringer tee",    "cat-ringer-front", "cat-ringer-back", "", "Regular"),
-      piece("Striped Shirt",               "Shirt",         "striped-shirt-front", "striped-shirt-back", "", "Boxy"),
-      piece("Striped Shirt, Red Line",     "Shirt",         "striped-shirt-red-front", "striped-shirt-red-back", "", "Boxy"),
+      piece("It's Light Out Shirt",        "Shirt",         "striped-shirt-front", "striped-shirt-red-back", "", "Boxy"),
+      piece("Emotionally Expensive Shirt", "Shirt",         "striped-shirt-red-front", "striped-shirt-back", "", "Boxy"),
       piece("Delicate By Design Crop Tee", "Boxy crop tee", "delicate-crop-front", "", "", "Boxy crop"),
       piece("Fear Of Missing Out Tee",     "Oversized tee", "fomo-front", "", "", "Oversized"),
       piece("Fragile Tee",                 "Oversized tee", "fragile-front", "", "", "Oversized"),
@@ -471,6 +472,12 @@
       }
     }, true);
 
+    function hoverBack(el2, p) {
+      if (!p.photo || !p.photoBack) return;
+      var pre = new Image(); pre.src = p.photoBack;
+      el2.addEventListener("mouseenter", function () { var im = el2.querySelector("img"); if (im) im.src = p.photoBack; });
+      el2.addEventListener("mouseleave", function () { var im = el2.querySelector("img"); if (im) im.src = p.photo; });
+    }
     function frame(p, withTag) {
       var f = el("div", "frame");
       if (p.photo) { var img = el("img"); img.src = p.photo; img.alt = p.name; f.appendChild(img); }
@@ -484,6 +491,7 @@
       var cap = el("div", "cap"); cap.appendChild(el("span", null, p.name)); cap.appendChild(el("span", null, p.price || "Price coming soon"));
       b.appendChild(cap);
       b.onclick = function () { openPiece(P.indexOf(p), b); };
+      hoverBack(b, p);
       return b;
     }
 
@@ -525,6 +533,7 @@
       var b = el("button", "hang"); b.type = "button"; b.setAttribute("aria-label", "View " + p.name);
       b.appendChild(garment(p, i, "front")); if (!p.photo) b.appendChild(tagEl(p, i)); b.appendChild(el("span", "hang-name", p.name)); b.appendChild(el("span", "hang-price", p.price || "Price coming soon"));
       b.onclick = function () { openPiece(i, b); };
+      hoverBack(b, p);
       rackIn.appendChild(b);
     });
     function rackStep(dir) { rack.scrollBy({ left: dir * Math.max(240, rack.clientWidth * 0.7), behavior: "smooth" }); }
@@ -541,7 +550,15 @@
         holder.innerHTML = ""; holder.appendChild(garment(p, i, side)); if (!p.photo) holder.appendChild(tagEl(p, i));
         fb.setAttribute("aria-pressed", side === "front" ? "true" : "false"); bb.setAttribute("aria-pressed", side === "back" ? "true" : "false");
       }
-      fb.onclick = function () { side = "front"; paint(); }; bb.onclick = function () { side = "back"; paint(); };
+      function flip(to) {
+        if (to === side) return;
+        var img = holder.querySelector(".g-img");
+        side = to;
+        if (!img) { paint(); return; }
+        img.classList.add("fade");
+        setTimeout(function () { paint(); }, 160);
+      }
+      fb.onclick = function () { flip("front"); }; bb.onclick = function () { flip("back"); };
       tog.appendChild(fb); tog.appendChild(bb); paint();
       var l = el("button", "pv-arrow l", "←"), r = el("button", "pv-arrow r", "→"); l.type = r.type = "button"; l.setAttribute("aria-label", "Previous piece"); r.setAttribute("aria-label", "Next piece");
       l.onclick = function () { openPiece((i + P.length - 1) % P.length, opener); }; r.onclick = function () { openPiece((i + 1) % P.length, opener); };
@@ -625,8 +642,8 @@
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
-    var m = /^#piece-(\d+)$/.exec(location.hash);
-    if (m && P[+m[1] - 1]) openPiece(+m[1] - 1, null);
+    function fromHash() { var m = /^#piece-(\d+)$/.exec(location.hash); if (m && P[+m[1] - 1]) openPiece(+m[1] - 1, null); }
+    fromHash(); window.addEventListener("hashchange", fromHash);
 
     /* custom design form */
     document.getElementById("custom-form").addEventListener("submit", function (e) {
