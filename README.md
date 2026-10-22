@@ -12,7 +12,8 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
 
 **2. Products**
 - Set each product's `name`, `price`, `headline`, `story` and `details`.
-- Put photos in an `images/` folder and set `photo: "images/tee-01.jpg"`.
+- Put photos in an `images/` folder and set `photo` (front) and `photoBack` (back), e.g. `photo: "images/tee-01-front.png"`.
+- For The Rack, the best photos are the garment alone on a **transparent background** (PNG), front and back. Until then a placeholder garment shows.
 
 **3. Payment (optional)**
 - In the brand's own Razorpay dashboard, create a Payment Link per product and paste its public URL (`https://rzp.io/...`) into that product's `payLink`.

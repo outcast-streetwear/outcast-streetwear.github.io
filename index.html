@@ -55,10 +55,10 @@
   .btn.block { width: 100%; }
 
   /* hero + carousel */
-  .hero { padding: 36px 0 8px; text-align: center; }
-  .hero h1 { font-size: clamp(46px, 9vw, 110px); margin-top: 12px; }
+  .hero { padding: 20px 0 6px; text-align: center; }
+  .hero h1 { font-size: clamp(40px, 7vw, 84px); margin-top: 10px; }
   .hero h1 em { font-style: normal; color: var(--red); }
-  .hero p { color: var(--muted); max-width: 30rem; margin: 18px auto 0; font-size: 17px; }
+  .hero p { color: var(--muted); max-width: 30rem; margin: 12px auto 0; font-size: 16px; }
 
   .stage { position: relative; padding: 28px 0 8px; }
   .track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px calc(50% - var(--sw) / 2); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -95,6 +95,41 @@
   @media (max-width: 440px) { .grid { gap: 12px; } }
   .grid .slide { opacity: 1; transform: none; flex: none; }
   .grid .slide:hover .frame { border-color: var(--red); }
+
+  /* the rack */
+  .rackwrap { background: linear-gradient(#FBFAF7, var(--bg)); }
+  .rack { overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .rack::-webkit-scrollbar { display: none; }
+  .rack-in { position: relative; display: flex; gap: clamp(10px, 2.4vw, 34px); padding: 38px 20px 34px; min-width: max-content; }
+  @media (max-width: 640px) { .rack-in { padding-left: calc(50% - 75px); padding-right: calc(50% - 75px); } }
+  .rack-in::before { content: ""; position: absolute; left: 0; right: 0; top: 46px; height: 8px; background: linear-gradient(#D8D6CF, #8E8C86 55%, #CFCDC6); border-radius: 4px; box-shadow: 0 6px 10px -6px rgba(0,0,0,.35); }
+  .hang { flex: 0 0 auto; position: relative; display: grid; justify-items: center; gap: 10px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; scroll-snap-align: center; width: clamp(150px, 21vw, 210px); }
+  .garment { position: relative; width: 100%; display: grid; justify-items: center; transition: transform .25s; transform-origin: 50% 0; }
+  .hang:hover .garment, .hang:focus-visible .garment { transform: translateY(-4px) rotate(-1deg); }
+  .hang:focus-visible { outline: 3px solid var(--red); outline-offset: 6px; }
+  .hanger { width: 52%; height: auto; display: block; margin-bottom: -6px; position: relative; z-index: 1; }
+  .g-ph { position: relative; width: 100%; display: grid; place-items: center; filter: drop-shadow(0 10px 8px rgba(0,0,0,.16)); }
+  .g-ph svg { width: 100%; height: auto; display: block; }
+  .g-label { position: absolute; font: 600 11px/1.3 "Inter", sans-serif; text-align: center; letter-spacing: .04em; max-width: 42%; font-size: 10px; }
+  .g-img { width: 100%; height: auto; max-height: 300px; object-fit: contain; display: block; filter: drop-shadow(0 10px 8px rgba(0,0,0,.18)); }
+  .hang-name { font-size: 13px; font-weight: 600; text-align: center; }
+  .tag-hang { position: absolute; right: 2%; top: 20%; width: 50px; padding: 10px 4px 6px; text-align: center; font: 600 11px/1.2 "Inter", sans-serif; border: 1.5px solid var(--ink); transform-origin: 50% 0; animation: sway 4.2s ease-in-out infinite; animation-delay: var(--d, 0s); z-index: 2; pointer-events: none; background: var(--red); color: var(--red-ink); }
+  .tag-hang.t1 { background: var(--ink); color: var(--bg); }
+  .tag-hang.t2 { background: #fff; color: var(--ink); }
+  .tag-hang::before { content: ""; position: absolute; left: 50%; top: -14px; width: 1.5px; height: 14px; background: var(--ink); }
+  .tag-hang i { position: absolute; left: 50%; top: 3px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--ink); }
+  @keyframes sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+  /* piece view stage */
+  .pv { position: relative; display: grid; justify-items: center; gap: 16px; }
+  .pv-g { position: relative; width: min(100%, 340px); padding-top: 4px; }
+  .pv-g .tag-hang { width: 62px; font-size: 13px; right: 4%; top: 22%; }
+  .pv-toggle { display: inline-flex; border: 2px solid var(--ink); }
+  .pv-toggle button { border: 0; background: none; padding: 9px 18px; font: 600 12px "Inter", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--ink); }
+  .pv-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .pv-arrow { position: absolute; top: 40%; width: 42px; height: 42px; border: 2px solid var(--ink); border-radius: 50%; background: var(--bg); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 3; }
+  .pv-arrow:hover { background: var(--ink); color: var(--bg); }
+  .pv-arrow.l { left: -12px; } .pv-arrow.r { right: -12px; }
+  @media (prefers-reduced-motion: reduce) { .tag-hang { animation: none; } .garment { transition: none; } }
 
   /* product page (modal) */
   .modal { position: fixed; inset: 0; background: var(--bg); z-index: 40; overflow-y: auto; display: none; }
@@ -185,14 +220,15 @@
   </header>
 </div>
 
-<div class="stage" aria-label="Featured pieces">
-  <div class="track" id="track" tabindex="0" aria-label="Featured pieces. Use the arrows or swipe."></div>
+<section class="rackwrap" aria-label="The rack" style="padding:6px 0 0">
+  <div class="rack" id="rack" tabindex="0" aria-label="The rack. Swipe sideways or use the arrows, then tap a piece."><div class="rack-in" id="rack-in"></div></div>
   <div class="ctrl">
-    <button class="arrow" id="prev" type="button" aria-label="Previous piece">←</button>
-    <span class="count" id="count" aria-live="polite">01 / 08</span>
-    <button class="arrow" id="next" type="button" aria-label="Next piece">→</button>
+    <button class="arrow" id="prev" type="button" aria-label="Scroll the rack left">←</button>
+    <span class="count">The Rack</span>
+    <button class="arrow" id="next" type="button" aria-label="Scroll the rack right">→</button>
   </div>
-</div>
+  <p class="mono" style="text-align:center;margin-top:14px">Swipe the rack · tap a piece</p>
+</section>
 
 <div class="band" aria-hidden="true">
   <div class="band-track">
@@ -294,7 +330,8 @@
                     Currently Web3Forms, sending orders to Daksh's Gmail. To change the inbox, get a new key with the new email
                     at web3forms.com and replace orderAccessKey. These are public values by design. Never put a password or a Razorpay key secret here.
      products: replace the placeholders.
-       photo:    path to an image in /images (e.g. "images/tee-01.jpg"), or "" for a placeholder tile.
+       photo / photoBack: path to the front / back image in /images (e.g. "images/tee-01.png"). Best as a PNG of the
+                 garment alone on a transparent background so it hangs on the rack. "" shows a placeholder garment.
        price:    e.g. "₹999", or "" to show "Price in DM".
        headline / story / details: the text on the piece's page. Short and in the brand's voice.
        payLink:  the PUBLIC Razorpay Payment Link / Payment Page URL (https://rzp.io/...), created in the brand's own
@@ -309,14 +346,14 @@
     orderEndpoint: "https://api.web3forms.com/submit",
     orderAccessKey: "28afb220-e3ef-4fd4-838c-7a3d3e4d1906",
     products: [
-      { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Graphic Tee 03",   type: "Oversized tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Ringer Tee 01",    type: "Ringer tee",    price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Boxy Crop Tee 01", type: "Boxy crop tee", price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Boxy crop"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Heavy Hoodie 01",  type: "Hoodie",        price: "", photo: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Heavy Hoodie 02",  type: "Hoodie",        price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Zip Hoodie 01",    type: "Zip hoodie",    price: "", photo: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] }
+      { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Graphic Tee 03",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Ringer Tee 01",    type: "Ringer tee",    price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Boxy Crop Tee 01", type: "Boxy crop tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Boxy crop"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Heavy Hoodie 01",  type: "Hoodie",        price: "", photo: "", photoBack: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Heavy Hoodie 02",  type: "Hoodie",        price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
+      { name: "Zip Hoodie 01",    type: "Zip hoodie",    price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] }
     ]
   };
 
@@ -402,26 +439,66 @@
       return b;
     }
 
-    /* carousel */
-    var track = document.getElementById("track"), count = document.getElementById("count"), slides = [];
-    P.forEach(function (p, i) { var s = tile(p, i); slides.push(s); track.appendChild(s); });
-    function activeIndex() {
-      var mid = track.scrollLeft + track.clientWidth / 2, best = 0, bestD = 1e9;
-      slides.forEach(function (s, i) { var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (d < bestD) { bestD = d; best = i; } });
-      return best;
+    /* the rack */
+    var HANGER = '<svg class="hanger" viewBox="0 0 120 54" aria-hidden="true" focusable="false"><path d="M60 30 L60 24 C60 14 71 12 73 19" fill="none" stroke="#0E0E0E" stroke-width="3" stroke-linecap="round"/><path d="M60 30 L10 50 L110 50 Z" fill="none" stroke="#0E0E0E" stroke-width="3" stroke-linejoin="round"/></svg>';
+    var COLORS = ["#0E0E0E", "#FFFFFF", "#E0261D", "#0E0E0E", "#EDEBE4", "#0E0E0E", "#FFFFFF", "#0E0E0E"];
+    var TEE = "M62 14 Q100 34 138 14 L192 52 L172 96 L150 84 L150 206 L50 206 L50 84 L28 96 L8 52 Z";
+    var CROP = "M62 14 Q100 34 138 14 L192 52 L172 96 L150 84 L150 162 L50 162 L50 84 L28 96 L8 52 Z";
+    var HOOD = "M66 22 Q100 -6 134 22 L152 30 L196 76 L186 188 L156 188 L154 206 L46 206 L44 188 L14 188 L4 76 L48 30 Z";
+    function shapeSVG(type, fill, line) {
+      var body = TEE, extra = "";
+      if (type === "Boxy crop tee") body = CROP;
+      if (type === "Hoodie" || type === "Zip hoodie") {
+        body = HOOD; extra = '<path d="M70 24 Q100 54 130 24" fill="none" stroke="' + line + '" stroke-width="2.5"/>';
+        if (type === "Zip hoodie") extra += '<path d="M100 46 L100 206" fill="none" stroke="' + line + '" stroke-width="2.5"/>'; else extra += '<path d="M72 150 L128 150 L134 184 L66 184 Z" fill="none" stroke="' + line + '" stroke-width="2.5"/>';
+      }
+      if (type === "Ringer tee") extra = '<path d="M62 14 Q100 34 138 14" fill="none" stroke="#E0261D" stroke-width="6"/><path d="M172 96 L192 52" stroke="#E0261D" stroke-width="6"/><path d="M28 96 L8 52" stroke="#E0261D" stroke-width="6"/>';
+      return '<svg viewBox="0 0 200 220" aria-hidden="true" focusable="false"><path d="' + body + '" fill="' + fill + '" stroke="#0E0E0E" stroke-width="3" stroke-linejoin="round"/>' + extra + '</svg>';
     }
-    var ticking = false;
-    function sync() {
-      var a = activeIndex();
-      slides.forEach(function (s, i) { s.classList.toggle("on", i === a); });
-      count.textContent = pad(a + 1) + " / " + pad(slides.length);
+    function garment(p, i, side) {
+      var g = el("div", "garment"); g.innerHTML = HANGER;
+      var photo = side === "back" ? p.photoBack : p.photo;
+      if (photo) { var img = el("img", "g-img"); img.src = photo; img.alt = p.name + (side === "back" ? " (back)" : ""); img.loading = "lazy"; g.appendChild(img); }
+      else {
+        var col = COLORS[i % COLORS.length], dark = (col === "#0E0E0E" || col === "#E0261D");
+        var ph = el("div", "g-ph"); ph.innerHTML = shapeSVG(p.type, col, dark ? "#F4F3EF" : "#0E0E0E");
+        var lab = el("span", "g-label", (side === "back" ? "Back" : "Front") + " photo goes here"); lab.style.color = dark ? "#F4F3EF" : "#0E0E0E";
+        ph.appendChild(lab); g.appendChild(ph);
+      }
+      return g;
     }
-    track.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false; sync(); }); } });
-    function step(dir) { var a = Math.max(0, Math.min(slides.length - 1, activeIndex() + dir)); track.scrollTo({ left: slides[a].offsetLeft + slides[a].offsetWidth / 2 - track.clientWidth / 2, behavior: "smooth" }); }
-    document.getElementById("prev").onclick = function () { step(-1); };
-    document.getElementById("next").onclick = function () { step(1); };
-    track.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") { e.preventDefault(); step(1); } if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); } });
-    window.addEventListener("resize", sync); sync();
+    function tagEl(p, i) {
+      var t = el("div", "tag-hang t" + (i % 3)); t.setAttribute("aria-hidden", "true"); t.style.setProperty("--d", (i * 0.37) + "s");
+      t.appendChild(el("i")); t.appendChild(el("span", null, p.price || "₹ —")); return t;
+    }
+    var rack = document.getElementById("rack"), rackIn = document.getElementById("rack-in");
+    P.forEach(function (p, i) {
+      var b = el("button", "hang"); b.type = "button"; b.setAttribute("aria-label", "View " + p.name);
+      b.appendChild(garment(p, i, "front")); b.appendChild(tagEl(p, i)); b.appendChild(el("span", "hang-name", p.name));
+      b.onclick = function () { openPiece(i, b); };
+      rackIn.appendChild(b);
+    });
+    function rackStep(dir) { rack.scrollBy({ left: dir * Math.max(240, rack.clientWidth * 0.7), behavior: "smooth" }); }
+    document.getElementById("prev").onclick = function () { rackStep(-1); };
+    document.getElementById("next").onclick = function () { rackStep(1); };
+    rack.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") { e.preventDefault(); rackStep(1); } if (e.key === "ArrowLeft") { e.preventDefault(); rackStep(-1); } });
+
+    /* piece view: hanger stage with Front / Back switch and arrows between pieces */
+    function stage(p, i) {
+      var wrap = el("div", "pv"), holder = el("div", "pv-g"), side = "front";
+      var tog = el("div", "pv-toggle"); tog.setAttribute("role", "group"); tog.setAttribute("aria-label", "Front or back");
+      var fb = el("button", null, "Front"), bb = el("button", null, "Back"); fb.type = bb.type = "button";
+      function paint() {
+        holder.innerHTML = ""; holder.appendChild(garment(p, i, side)); holder.appendChild(tagEl(p, i));
+        fb.setAttribute("aria-pressed", side === "front" ? "true" : "false"); bb.setAttribute("aria-pressed", side === "back" ? "true" : "false");
+      }
+      fb.onclick = function () { side = "front"; paint(); }; bb.onclick = function () { side = "back"; paint(); };
+      tog.appendChild(fb); tog.appendChild(bb); paint();
+      var l = el("button", "pv-arrow l", "←"), r = el("button", "pv-arrow r", "→"); l.type = r.type = "button"; l.setAttribute("aria-label", "Previous piece"); r.setAttribute("aria-label", "Next piece");
+      l.onclick = function () { openPiece((i + P.length - 1) % P.length, opener); }; r.onclick = function () { openPiece((i + 1) % P.length, opener); };
+      wrap.appendChild(holder); wrap.appendChild(tog); wrap.appendChild(l); wrap.appendChild(r);
+      return wrap;
+    }
 
     /* grid + filters */
     var types = ["All"]; P.forEach(function (p) { if (types.indexOf(p.type) < 0) types.push(p.type); });
@@ -449,7 +526,7 @@
       var h = el("h2", null, p.headline); h.id = "m-title"; mStory.appendChild(h);
       mStory.appendChild(el("p", null, p.story));
       var ul = el("ul"); (p.details || []).forEach(function (d) { var li = el("li"); li.appendChild(el("span", null, d[0])); li.appendChild(el("span", null, d[1])); ul.appendChild(li); }); mStory.appendChild(ul);
-      mImg.appendChild(frame(p, true));
+      mImg.appendChild(stage(p, i));
 
       mBuy.appendChild(el("span", "mono", p.type));
       mBuy.appendChild(el("h3", null, p.name));
