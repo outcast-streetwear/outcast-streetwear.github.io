@@ -240,6 +240,37 @@
     .buybar { position: sticky; bottom: 0; z-index: 3; background: var(--bg); margin: 0 -20px; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .band-track { animation: none; } .slide { transition: none; } }
+
+  /* motion: all of it switches off for people whose phone is set to reduce motion */
+  .hero h1 .ln { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+  .hero h1 .ln > span { display: inline-block; }
+  @media (prefers-reduced-motion: no-preference) {
+    /* 1. headline rises in line by line, then the line under it */
+    .hero h1 .ln > span { transform: translateY(110%); animation: rise .8s cubic-bezier(.2,.8,.2,1) forwards; }
+    .hero h1 .ln:nth-child(2) > span { animation-delay: .12s; }
+    .hero .mono, .hero p { opacity: 0; animation: fadein .7s ease .45s forwards; }
+    @keyframes rise { to { transform: none; } }
+    @keyframes fadein { to { opacity: 1; } }
+
+    /* 2. pieces and sections fade up as they scroll into view (class added by JS, so nothing hides without it) */
+    .anim .reveal { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+    .anim .reveal.in { opacity: 1; transform: none; }
+
+    /* 3. product page slides up; switching pieces cross-fades */
+    .modal.open { animation: pageup .38s cubic-bezier(.2,.8,.2,1); }
+    .m-body.swap > * { animation: fadein .3s ease; }
+    @keyframes pageup { from { opacity: 0; transform: translateY(40px); } }
+    .sheet.open { animation: fadein .2s ease; }
+    .sheet.open .sheet-card { animation: popin .28s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes popin { from { opacity: 0; transform: translateY(16px) scale(.97); } }
+
+    /* 4. small pops: size picked, quantity changed, order sent */
+    .sizes input:checked + span { animation: pop .24s ease; }
+    .qty output.bump { animation: pop .2s ease; }
+    .sheet-ok.on { animation: popin .35s cubic-bezier(.2,.9,.3,1.2); }
+    .sheet-ok.on h4::before { content: "✓"; display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; margin-right: .4em; background: #1B7A3A; color: #fff; border-radius: 50%; font-size: .8em; vertical-align: .08em; animation: pop .4s cubic-bezier(.2,.9,.3,1.4) .15s backwards; }
+    @keyframes pop { 0% { transform: scale(.82); } 60% { transform: scale(1.08); } 100% { transform: none; } }
+  }
 </style>
 </head>
 <body>
@@ -255,7 +286,7 @@
 
   <header class="hero" id="top">
     <span class="mono">Graphic streetwear · Made in India</span>
-    <h1>Wear it loud.<br><em>Stay</em> outcast.</h1>
+    <h1><span class="ln"><span>Wear it loud.</span></span><span class="ln"><span><em>Stay</em> outcast.</span></span></h1>
     <p>Oversized tees, hoodies and one-off custom designs. Order online, delivered anywhere in India.</p>
   </header>
 </div>
@@ -598,15 +629,36 @@
     function renderGrid() {
       grid.innerHTML = "";
       P.filter(function (p) { return active === "All" || p.type === active; }).forEach(function (p, i) { grid.appendChild(tile(p, i)); });
+      reveal(grid.children);
+    }
+
+    /* fade-up on scroll: only switched on when the browser supports it and motion is allowed */
+    var io = null;
+    if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("anim");
+      io = new IntersectionObserver(function (entries) {
+        var k = 0;
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          e.target.style.transitionDelay = Math.min(k++, 6) * 70 + "ms";
+          e.target.classList.add("in"); io.unobserve(e.target);
+        });
+      }, { rootMargin: "0px 0px -8% 0px" });
+    }
+    function reveal(list) {
+      [].forEach.call(list, function (x) { if (!io) return; x.classList.add("reveal"); io.observe(x); });
     }
     renderFilters(); renderGrid();
+    reveal(rackIn.children);
+    reveal(document.querySelectorAll(".sec-head, .drop-head, .filters, .custom, .steps li, footer"));
 
     /* product page */
-    var modal = document.getElementById("modal"), mImg = document.getElementById("m-img"), mBuy = document.getElementById("m-buy"), closeBtn = document.getElementById("m-close"), opener = null, current = -1, pushed = false;
+    var modal = document.getElementById("modal"), mBody = modal.querySelector(".m-body"), mImg = document.getElementById("m-img"), mBuy = document.getElementById("m-buy"), closeBtn = document.getElementById("m-close"), opener = null, current = -1, pushed = false;
     function openPiece(i, from) {
       var p = P[i], wasOpen = modal.classList.contains("open");
       if (!wasOpen) opener = from || null;
       mImg.innerHTML = mBuy.innerHTML = "";
+      if (wasOpen) { mBody.classList.remove("swap"); void mBody.offsetWidth; mBody.classList.add("swap"); }
       mImg.appendChild(stage(p, i));
 
       mBuy.appendChild(el("span", "mono", "Piece " + pad(i + 1) + " · " + p.type));
@@ -621,8 +673,9 @@
       var qty = el("div", "qty"), out = el("output", null, "1"), n = 1;
       var minus = el("button", null, "−"); minus.type = "button"; minus.setAttribute("aria-label", "Fewer");
       var plus = el("button", null, "+"); plus.type = "button"; plus.setAttribute("aria-label", "More");
-      minus.onclick = function () { n = Math.max(1, n - 1); out.textContent = n; };
-      plus.onclick = function () { n = Math.min(10, n + 1); out.textContent = n; };
+      function setN(v) { if (v === n) return; n = v; out.textContent = n; out.classList.remove("bump"); void out.offsetWidth; out.classList.add("bump"); }
+      minus.onclick = function () { setN(Math.max(1, n - 1)); };
+      plus.onclick = function () { setN(Math.min(10, n + 1)); };
       qty.appendChild(minus); qty.appendChild(out); qty.appendChild(plus); q.appendChild(qty); mBuy.appendChild(q);
       var order = el("button", "btn red block", "Place order"); order.type = "button";
       order.onclick = function () {
