@@ -67,7 +67,7 @@
   .slide.on { opacity: 1; transform: none; }
   .frame { aspect-ratio: 4/5; width: 100%; background: repeating-linear-gradient(45deg, #E9E7E0 0 12px, #E1DFD7 12px 24px); display: grid; place-items: center; text-align: center; padding: 18px; color: var(--muted); font-size: 13px; position: relative; overflow: hidden; border: 2px solid var(--ink); }
   .frame b { display: block; font-family: "Archivo Black", sans-serif; font-weight: 400; font-size: 20px; color: var(--ink); text-transform: uppercase; }
-  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8%; }
   .frame .tag { position: absolute; top: 10px; left: 10px; background: var(--red); color: var(--red-ink); font: 600 11px "Inter", sans-serif; padding: 3px 8px; letter-spacing: .06em; text-transform: uppercase; z-index: 1; }
   .cap { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; font-size: 14px; font-weight: 500; }
   .cap span:last-child { color: var(--muted); }
@@ -340,20 +340,32 @@
      Never put a Razorpay key secret in this file. Only the public payment link goes here.
      ========================================================= */
   var STORY = "Tell the story of this piece here: where the design came from, the fabric, the fit.";
+  function piece(name, type, front, back, tag, fit) {
+    return { name: name, type: type, price: "", photo: "images/" + front + ".webp", photoBack: back ? "images/" + back + ".webp" : "", payLink: "", tag: tag, headline: "Add a headline", story: STORY, details: [["Fit", fit], ["Fabric", "Add details"], ["Print", "Add details"]] };
+  }
   var CONFIG = {
     brand: "Outcast",
     instagram: "outcastt.in",
     orderEndpoint: "https://api.web3forms.com/submit",
     orderAccessKey: "28afb220-e3ef-4fd4-838c-7a3d3e4d1906",
     products: [
-      { name: "Graphic Tee 01",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Graphic Tee 02",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Graphic Tee 03",   type: "Oversized tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Ringer Tee 01",    type: "Ringer tee",    price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Boxy Crop Tee 01", type: "Boxy crop tee", price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Boxy crop"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Heavy Hoodie 01",  type: "Hoodie",        price: "", photo: "", photoBack: "", payLink: "", tag: "New", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Heavy Hoodie 02",  type: "Hoodie",        price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Oversized"], ["Fabric", "Add details"], ["Print", "Add details"]] },
-      { name: "Zip Hoodie 01",    type: "Zip hoodie",    price: "", photo: "", photoBack: "", payLink: "", headline: "Add a headline", story: STORY, details: [["Fit", "Regular"], ["Fabric", "Add details"], ["Print", "Add details"]] }
+      piece("Outcast Zip Hoodie",          "Zip hoodie",    "outcast-zip-front", "", "New", "Regular"),
+      piece("Car Crash Ringer Tee",        "Ringer tee",    "crash-ringer-front", "", "New", "Regular"),
+      piece("Restricted Tee",              "Oversized tee", "restricted-front", "", "", "Oversized"),
+      piece("Venom Zip Hoodie",            "Zip hoodie",    "venom-zip-front", "venom-zip-back", "", "Regular"),
+      piece("Cat Guitar Ringer Tee",       "Ringer tee",    "cat-ringer-front", "cat-ringer-back", "", "Regular"),
+      piece("Striped Shirt",               "Shirt",         "striped-shirt-front", "striped-shirt-back", "", "Boxy"),
+      piece("Striped Shirt, Red Line",     "Shirt",         "striped-shirt-red-front", "striped-shirt-red-back", "", "Boxy"),
+      piece("Delicate By Design Crop Tee", "Boxy crop tee", "delicate-crop-front", "", "", "Boxy crop"),
+      piece("Fear Of Missing Out Tee",     "Oversized tee", "fomo-front", "", "", "Oversized"),
+      piece("Fragile Tee",                 "Oversized tee", "fragile-front", "", "", "Oversized"),
+      piece("Risk Tee",                    "Oversized tee", "risk-front", "", "", "Oversized"),
+      piece("All We Need Is Money Tee",    "Oversized tee", "money-front", "", "", "Oversized"),
+      piece("All Things Must Pass Tee",    "Oversized tee", "all-things-front", "", "", "Oversized"),
+      piece("Shell Ringer Tee",            "Ringer tee",    "shell-ringer-front", "", "", "Regular"),
+      piece("Cream Hoodie",                "Hoodie",        "cream-hoodie-front", "", "", "Oversized"),
+      piece("Vision Long Sleeve",          "Long sleeve",   "vision-front", "", "", "Boxy"),
+      piece("Golden Days Long Sleeve",     "Long sleeve",   "golden-days-front", "", "", "Boxy")
     ]
   };
 
@@ -496,7 +508,7 @@
       tog.appendChild(fb); tog.appendChild(bb); paint();
       var l = el("button", "pv-arrow l", "←"), r = el("button", "pv-arrow r", "→"); l.type = r.type = "button"; l.setAttribute("aria-label", "Previous piece"); r.setAttribute("aria-label", "Next piece");
       l.onclick = function () { openPiece((i + P.length - 1) % P.length, opener); }; r.onclick = function () { openPiece((i + 1) % P.length, opener); };
-      wrap.appendChild(holder); wrap.appendChild(tog); wrap.appendChild(l); wrap.appendChild(r);
+      wrap.appendChild(holder); if (!(p.photo && !p.photoBack)) wrap.appendChild(tog); wrap.appendChild(l); wrap.appendChild(r);
       return wrap;
     }
 
