@@ -336,7 +336,7 @@
         <label class="f">Size
           <select id="c-size"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
         </label>
-        <label class="f">Phone or Instagram handle<input type="text" id="c-contact" autocomplete="tel" placeholder="So we can reach you"></label>
+        <label class="f">WhatsApp / mobile number<input type="tel" id="c-contact" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="10-digit number"></label>
         <input type="text" id="c-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
         <label class="f">Your idea<textarea id="c-idea" placeholder="Describe the design, colours, any text..."></textarea></label>
         <button class="btn red" type="submit" id="c-send">Send request</button>
@@ -349,7 +349,7 @@
     <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
       <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, tap "Place order" and fill in your details. No account needed.</p></li>
-      <li><h3>We confirm</h3><p>We contact you on the phone number or Instagram you gave, to confirm the price, payment and delivery time for your pincode.</p></li>
+      <li><h3>We confirm</h3><p>We message you on WhatsApp to confirm the price, payment and delivery time for your pincode.</p></li>
       <li><h3>We ship it</h3><p>Packed and sent to your door anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
@@ -357,6 +357,7 @@
   <footer>
     <span>© <span id="yr"></span> Outcast</span>
     <span><a href="https://www.instagram.com/outcastt.in/" target="_blank" rel="noopener">@outcastt.in on Instagram</a></span>
+    <span>Site by <a href="https://github.com/thackerdaksh28-ai" target="_blank" rel="noopener">Daksh</a></span>
   </footer>
 </div>
 
@@ -378,7 +379,8 @@
     <div class="sheet-sum" id="sheet-sum"></div>
     <form id="order-form" novalidate style="display:grid;gap:12px">
       <label class="f">Your name<input type="text" id="o-name" autocomplete="name"></label>
-      <label class="f">Phone or Instagram handle<input type="text" id="o-contact" autocomplete="tel" placeholder="So we can confirm your order"></label>
+      <label class="f">WhatsApp / mobile number<input type="tel" id="o-contact" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="10-digit number"></label>
+      <label class="f">Instagram handle (optional)<input type="text" id="o-ig" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@yourhandle"></label>
       <label class="f">Delivery address and pincode<textarea id="o-addr" autocomplete="street-address"></textarea></label>
       <input type="text" id="o-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
       <button class="btn red block" type="submit" id="o-send">Send order</button>
@@ -437,8 +439,18 @@
       piece("Cream Hoodie",                "Hoodie",        "cream-hoodie-front", "", "", "Oversized"),
       piece("Vision Long Sleeve",          "Long sleeve",   "vision-front", "", "", "Boxy"),
       piece("Golden Days Long Sleeve",     "Long sleeve",   "golden-days-front", "", "", "Boxy")
-    ]
+    ],
+    /* the brand's order WhatsApp: country code + number, digits only, e.g. "919876543210". "" hides the WhatsApp buttons */
+    whatsapp: "",
+    /* shipping cost and delivery time, e.g. "₹79 shipping · 5–8 days". "" keeps the general line */
+    shippingLine: "",
+    /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
+    pricesByType: {}
   };
+  CONFIG.products.forEach(function (p) {
+    if (!p.price && CONFIG.pricesByType[p.type]) p.price = CONFIG.pricesByType[p.type];
+    if (CONFIG.shippingLine) p.details[2] = ["Shipping", CONFIG.shippingLine];
+  });
 
   (function () {
     var P = CONFIG.products;
@@ -456,6 +468,11 @@
       return fetch(CONFIG.orderEndpoint, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { if (!r.ok) throw new Error("send failed"); return { ok: true }; });
     }
+    /* short order IDs without look-alike characters (no O/0, I/1, L) */
+    function orderId() { var a = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", s = "OC-"; for (var k = 0; k < 5; k++) s += a.charAt(Math.floor(Math.random() * a.length)); return s; }
+    function waLink(text) { return /^\d{11,15}$/.test(CONFIG.whatsapp || "") ? "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(text) : ""; }
+    /* Indian mobile: accepts +91 / 0 prefixes and spaces, returns the 10 digits or "" */
+    function mobile(v) { v = v.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, ""); return /^[6-9]\d{9}$/.test(v) ? v : ""; }
     var FAIL = "Couldn't send. Check your connection and try again, or DM us on Instagram @" + CONFIG.instagram + ".";
     /* shows a form error next to the field that needs fixing */
     function bad(errEl, id, msg) {
@@ -468,17 +485,20 @@
     function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); if (sheetFrom && document.body.contains(sheetFrom)) sheetFrom.focus(); }
     function showDone(contact, demo) {
       form.style.display = "none"; ok.classList.add("on");
-      okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them." : "Thanks! We'll contact you on " + contact + " to confirm the price and delivery time.";
       [].slice.call(ok.querySelectorAll(".pay-bit")).forEach(function (x) { x.remove(); });
+      var wa = demo ? "" : waLink("Hi Outcast, confirming order " + pending.id + ": " + pending.piece + ", size " + pending.size + ", qty " + pending.quantity + (pending.price ? ", " + pending.price + " each" : "") + ". Name: " + pending.name + ".");
+      okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
+        : "Your order ID is " + pending.id + ". " + (wa ? "Tap below to confirm it on WhatsApp now, so we can reserve your piece." : "We'll message you on WhatsApp at +91 " + contact + " to confirm the price and delivery time. Screenshot this for reference.");
+      if (wa) { var w = el("a", "btn red block pay-bit", "Confirm on WhatsApp"); w.href = wa; w.target = "_blank"; w.rel = "noopener"; ok.appendChild(w); w.focus(); }
       if (pending && pending.pay) {
         var a = el("a", "btn dark block pay-bit", "Pay now (UPI / card)"); a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
         ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
         a.focus();
-      } else sheetClose.focus();
+      } else if (!ok.querySelector(".pay-bit")) sheetClose.focus();
     }
     function openOrder(p, size, qty, from) {
       sheetFrom = from || document.activeElement;
-      pending = { piece: p.name + " (" + p.type + ")", size: size, quantity: String(qty), pay: (p.payLink && /^https:\/\//.test(p.payLink)) ? p.payLink : "" };
+      pending = { piece: p.name + " (" + p.type + ")", price: p.price, size: size, quantity: String(qty), pay: (p.payLink && /^https:\/\//.test(p.payLink)) ? p.payLink : "" };
       sheetSum.textContent = p.name + " · size " + size + " · quantity " + qty;
       form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
       sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
@@ -488,12 +508,15 @@
       e.preventDefault();
       var name = document.getElementById("o-name").value.trim(), contact = document.getElementById("o-contact").value.trim(), addr = document.getElementById("o-addr").value.trim();
       if (!name) { bad(oErr, "o-name", "Add your name."); return; }
-      if (contact.length < 5) { bad(oErr, "o-contact", "Add a phone number or Instagram handle so we can reach you."); return; }
+      contact = mobile(contact);
+      if (!contact) { bad(oErr, "o-contact", "Add a valid 10-digit Indian mobile number."); return; }
+      var ig = document.getElementById("o-ig").value.trim().replace(/^@/, "");
       if (addr.length < 10 || !/\d{6}/.test(addr.replace(/\s/g, ""))) { bad(oErr, "o-addr", "Add your full delivery address with the 6-digit pincode."); return; }
       oErr.textContent = "";
+      pending.id = orderId(); pending.name = name;
       if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
       oSend.disabled = true; oSend.textContent = "Sending...";
-      sendOrder({ name: name, contact: contact, address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity }, "New order: " + pending.piece)
+      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity, price_shown: pending.price || "-" }, "Order " + pending.id + ": " + pending.piece + " (" + pending.size + " x" + pending.quantity + ")")
         .then(function (r) { showDone(contact, !!r.demo); })
         .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
     });
@@ -522,7 +545,7 @@
     }
     function frame(p, withTag) {
       var f = el("div", "frame");
-      if (p.photo) { var img = el("img"); img.src = p.photo; img.alt = p.name; f.appendChild(img); }
+      if (p.photo) { var img = el("img"); img.loading = "lazy"; img.decoding = "async"; img.width = 620; img.height = 520; img.src = p.photo; img.alt = p.name; f.appendChild(img); }
       else { var ph = el("div"); ph.appendChild(el("b", null, p.type)); ph.appendChild(document.createTextNode("Photo goes here")); f.appendChild(ph); }
       if (withTag && p.tag) f.appendChild(el("span", "tag", p.tag));
       return f;
@@ -683,7 +706,7 @@
         openOrder(p, size, n, order);
       };
       var bar = el("div", "buybar"); bar.appendChild(order); mBuy.appendChild(bar);
-      mBuy.appendChild(el("p", "note", "Shipping all over India. We confirm the price and delivery time after you order."));
+      mBuy.appendChild(el("p", "note", CONFIG.shippingLine ? CONFIG.shippingLine + ". We confirm your order on WhatsApp before we ship." : "Shipping all over India. We confirm the price and delivery time on WhatsApp after you order."));
       if (p.story) mBuy.appendChild(el("p", "m-desc", p.story));
       var dl = el("ul"); (p.details || []).forEach(function (d) { var li = el("li"); li.appendChild(el("span", null, d[0])); li.appendChild(el("span", null, d[1])); dl.appendChild(li); }); mBuy.appendChild(dl);
 
@@ -732,7 +755,8 @@
       e.preventDefault();
       var nme = document.getElementById("c-name").value.trim(), con = document.getElementById("c-contact").value.trim(), idea = document.getElementById("c-idea").value.trim(), err = document.getElementById("c-err"), btn = document.getElementById("c-send");
       if (!nme) { bad(err, "c-name", "Add your name."); return; }
-      if (con.length < 5) { bad(err, "c-contact", "Add a phone number or Instagram handle so we can reach you."); return; }
+      con = mobile(con);
+      if (!con) { bad(err, "c-contact", "Add a valid 10-digit Indian mobile number."); return; }
       if (idea.length < 8) { bad(err, "c-idea", "Describe your idea in a sentence or two."); return; }
       err.textContent = "";
       if (document.getElementById("c-trap").value) { err.textContent = "Request sent. We'll be in touch."; return; }
