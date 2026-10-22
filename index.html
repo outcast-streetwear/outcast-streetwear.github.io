@@ -146,6 +146,16 @@
   .steps h3 { font-size: 20px; }
   .steps p { color: var(--muted); }
 
+  /* send sheet: shown after tapping Order */
+  .sheet { position: fixed; inset: 0; background: rgba(14,14,14,.6); z-index: 70; display: none; align-items: center; justify-content: center; padding: 16px; }
+  .sheet.open { display: flex; }
+  .sheet-card { background: var(--bg); border: 2px solid var(--ink); max-width: 460px; width: 100%; padding: 22px; display: grid; gap: 14px; max-height: 92vh; overflow-y: auto; }
+  .sheet-card h3 { font-size: 26px; }
+  .sheet-card .how { font-size: 14px; color: var(--muted); }
+  .sheet-msg { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; background: var(--surface); border: 1px dashed var(--line); padding: 12px; max-height: 190px; overflow-y: auto; }
+  .sheet-row { display: grid; gap: 10px; }
+  .sheet-x { justify-self: start; background: none; border: 0; color: var(--muted); font: 500 13px "Inter", sans-serif; cursor: pointer; text-decoration: underline; padding: 6px 0; }
+
   footer { border-top: 2px solid var(--ink); padding: 32px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
 
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .band-track { animation: none; } .slide { transition: none; } }
@@ -213,7 +223,6 @@
         <label class="f">Your idea<textarea id="c-idea" placeholder="Describe the design, colours, any text..."></textarea></label>
         <button class="btn red" type="submit">Send on Instagram</button>
         <div class="err" id="c-err" role="status" aria-live="polite"></div>
-        <div class="preview" id="c-preview" aria-live="polite"></div>
       </form>
     </div>
   </section>
@@ -243,6 +252,19 @@
     <div class="m-story" id="m-story"></div>
     <div class="m-img" id="m-img"></div>
     <div class="m-buy" id="m-buy"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true">
+  <div class="sheet-card">
+    <h3 id="sheet-title">Message copied</h3>
+    <p class="how">Instagram can't fill in a message for you. Tap the button, open the chat with us (on a computer it opens our profile, so click <b>Message</b>), then <b>paste</b>: <b>Cmd + V</b> (Ctrl + V on Windows), or press and hold on a phone and tap <b>Paste</b>. Then send.</p>
+    <div class="sheet-msg" id="sheet-msg"></div>
+    <div class="sheet-row">
+      <a class="btn red block" id="sheet-open" href="#" target="_blank" rel="noopener">Open Instagram</a>
+      <button class="btn block" id="sheet-copy" type="button">Copy again</button>
+    </div>
+    <button class="sheet-x" id="sheet-close" type="button">Close</button>
   </div>
 </div>
 
@@ -283,19 +305,37 @@
     function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
     function pad(n) { return (n < 10 ? "0" : "") + n; }
 
-    /* toast + order via Instagram (copy message, open DM) */
-    var toast = el("div"); toast.setAttribute("role", "status"); toast.setAttribute("aria-live", "polite");
-    toast.style.cssText = "position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0E0E0E;color:#F4F3EF;padding:12px 18px;font:600 14px Inter,sans-serif;max-width:90vw;text-align:center;display:none;z-index:60;border:2px solid #E0261D";
-    document.body.appendChild(toast);
-    var toastTimer;
-    function say(t) { toast.textContent = t; toast.style.display = "block"; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.style.display = "none"; }, 6000); }
-    function orderViaInstagram(msg, previewEl) {
-      if (previewEl) { previewEl.textContent = msg; previewEl.classList.add("on"); }
-      var copied = false;
-      try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(msg); copied = true; } } catch (e) {}
-      window.open(dmUrl, "_blank", "noopener");
-      say(copied ? "Order message copied. Paste it into the Instagram DM." : "Copy the order message shown on the page, then paste it into the Instagram DM.");
+    /* order via Instagram: copy the message, then show a panel with the message and an "Open DM" button */
+    var sheet = document.getElementById("sheet"), sheetMsg = document.getElementById("sheet-msg"), sheetOpen = document.getElementById("sheet-open"), sheetCopy = document.getElementById("sheet-copy"), sheetClose = document.getElementById("sheet-close"), sheetTitle = document.getElementById("sheet-title"), sheetFrom = null, current = "";
+    sheetOpen.href = dmUrl;
+    function copyText(t) {
+      try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t); return true; } } catch (e) {}
+      try { var ta = document.createElement("textarea"); ta.value = t; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select(); var ok = document.execCommand("copy"); document.body.removeChild(ta); return ok; } catch (e) {}
+      return false;
     }
+    function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); if (sheetFrom && document.body.contains(sheetFrom)) sheetFrom.focus(); }
+    function orderViaInstagram(msg) {
+      current = msg; sheetFrom = document.activeElement;
+      var ok = copyText(msg);
+      sheetTitle.textContent = ok ? "Message copied" : "Copy your message";
+      sheetCopy.textContent = ok ? "Copy again" : "Copy message";
+      sheetMsg.textContent = msg;
+      sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
+      sheetOpen.focus();
+    }
+    sheetCopy.onclick = function () { var ok = copyText(current); sheetCopy.textContent = ok ? "Copied ✓" : "Select the text above and copy it"; };
+    sheetClose.onclick = closeSheet;
+    sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
+    document.addEventListener("keydown", function (e) {
+      if (!sheet.classList.contains("open")) return;
+      if (e.key === "Escape") { e.stopPropagation(); closeSheet(); return; }
+      if (e.key === "Tab") {
+        e.stopPropagation();
+        var f = [sheetOpen, sheetCopy, sheetClose], i = f.indexOf(document.activeElement);
+        e.preventDefault();
+        f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus();
+      }
+    }, true);
 
     function frame(p, withTag) {
       var f = el("div", "frame");
@@ -421,7 +461,7 @@
       if (!nme) { err.textContent = "Add your name."; return; }
       if (idea.length < 8) { err.textContent = "Describe your idea in a sentence or two."; return; }
       err.textContent = "";
-      orderViaInstagram("Hi " + CONFIG.brand + ", I'd like a custom design.\n\nName: " + nme + "\nPiece: " + document.getElementById("c-piece").value + "\nSize: " + document.getElementById("c-size").value + "\nIdea: " + idea, document.getElementById("c-preview"));
+      orderViaInstagram("Hi " + CONFIG.brand + ", I'd like a custom design.\n\nName: " + nme + "\nPiece: " + document.getElementById("c-piece").value + "\nSize: " + document.getElementById("c-size").value + "\nIdea: " + idea);
     });
   })();
 </script>
