@@ -278,7 +278,7 @@
 </head>
 <body>
 
-<div class="draft">DRAFT for review<span class="hide-sm"> · prices coming soon</span> · not live yet</div>
+<div class="draft">DRAFT for review · not live yet</div>
 
 <div class="wrap">
   <nav>
@@ -290,7 +290,7 @@
   <header class="hero" id="top">
     <span class="mono">Graphic streetwear · Made in India</span>
     <h1><span class="ln"><span>Wear it loud.</span></span><span class="ln"><span><em>Stay</em> outcast.</span></span></h1>
-    <p>Oversized tees, hoodies and one-off custom designs. Order online, delivered anywhere in India.</p>
+    <p>Oversized tees, hoodies and one-off custom designs. Order online, free delivery anywhere in India.</p>
   </header>
 </div>
 
@@ -307,8 +307,8 @@
 
 <div class="band" aria-hidden="true">
   <div class="band-track">
-    <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Shipping all India</span>
-    <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Shipping all India</span>
+    <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Free shipping all India</span>
+    <span>Oversized tees</span><span>Hoodies</span><span>Zip hoodies</span><span>Ringer tees</span><span>Custom designs</span><span>Free shipping all India</span>
   </div>
 </div>
 
@@ -353,7 +353,7 @@
     <ol class="steps">
       <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, tap "Place order" and fill in your details. No account needed.</p></li>
       <li><h3>Pay your way</h3><p>Pay the full amount online by UPI (GPay, PhonePe or Paytm), or choose cash on delivery for ₹100 extra. We contact you on your mobile to confirm.</p></li>
-      <li><h3>We ship it</h3><p>Packed and sent to anywhere in India. You get tracking once it leaves.</p></li>
+      <li><h3>We ship it</h3><p>Packed and sent free to anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
 
@@ -422,8 +422,8 @@
                  Leave "" and the brand confirms payment by message instead.
      Never put a Razorpay key secret in this file. Only the public payment link goes here.
      ========================================================= */
-  function piece(name, type, front, back, tag, fit) {
-    return { name: name, type: type, price: "", photo: "images/" + front + ".webp", photoBack: back ? "images/" + back + ".webp" : "", payLink: "", tag: tag, headline: "", story: "", details: [["Type", type], ["Fit", fit], ["Shipping", "All over India"]] };
+  function piece(name, type, front, back, tag, fit, price) {
+    return { name: name, type: type, price: price || "", photo: "images/" + front + ".webp", photoBack: back ? "images/" + back + ".webp" : "", payLink: "", tag: tag, headline: "", story: "", details: [["Type", type], ["Fit", fit], ["Shipping", "All over India"]] };
   }
   var CONFIG = {
     brand: "Outcast",
@@ -431,32 +431,29 @@
     orderEndpoint: "https://api.web3forms.com/submit",
     orderAccessKey: "28afb220-e3ef-4fd4-838c-7a3d3e4d1906",
     products: [
-      piece("Outcast Zip Hoodie",          "Zip hoodie",    "outcast-zip-front", "", "New", "Regular"),
-      piece("Car Crash Ringer Tee",        "Ringer tee",    "crash-ringer-front", "", "New", "Regular"),
-      piece("Restricted Tee",              "Oversized tee", "restricted-front", "", "", "Oversized"),
-      piece("Venom Zip Hoodie",            "Zip hoodie",    "venom-zip-front", "venom-zip-back", "", "Regular"),
-      piece("Cat Guitar Ringer Tee",       "Ringer tee",    "cat-ringer-front", "cat-ringer-back", "", "Regular"),
-      piece("It's Light Out Shirt",        "Shirt",         "striped-shirt-front", "striped-shirt-red-back", "", "Boxy"),
-      piece("Emotionally Expensive Shirt", "Shirt",         "striped-shirt-red-front", "striped-shirt-back", "", "Boxy"),
-      piece("Delicate By Design Crop Tee", "Boxy crop tee", "delicate-crop-front", "", "", "Boxy crop"),
-      piece("Fear Of Missing Out Tee",     "Oversized tee", "fomo-front", "", "", "Oversized"),
-      piece("Fragile Tee",                 "Oversized tee", "fragile-front", "", "", "Oversized"),
-      piece("All We Need Is Money Tee",    "Oversized tee", "money-front", "", "", "Oversized"),
-      piece("All Things Must Pass Tee",    "Oversized tee", "all-things-front", "", "", "Oversized"),
-      piece("Shell Ringer Tee",            "Ringer tee",    "shell-ringer-front", "", "", "Regular"),
-      piece("Cream Hoodie",                "Hoodie",        "cream-hoodie-front", "", "", "Oversized"),
-      piece("Vision Long Sleeve",          "Long sleeve",   "vision-front", "", "", "Boxy"),
-      piece("Golden Days Long Sleeve",     "Long sleeve",   "golden-days-front", "", "", "Boxy")
+      piece("Snake & Lily Zip Hoodie",     "Zip hoodie",    "snake-zip-front", "snake-zip-back", "New", "Regular", "₹1,499"),
+      piece("Outcast Zip Hoodie",          "Zip hoodie",    "outcast-zip-front", "", "", "Regular", "₹1,399"),
+      piece("Venom Zip Hoodie",            "Zip hoodie",    "venom-zip-front", "venom-zip-back", "", "Regular", "₹1,499"),
+      piece("Restricted Tee",              "Oversized tee", "restricted-front", "", "", "Oversized", "₹999"),
+      piece("Car Crash Ringer Tee",        "Ringer tee",    "crash-ringer-front", "", "", "Regular", "₹799"),
+      piece("Cat Guitar Ringer Tee",       "Ringer tee",    "cat-ringer-front", "cat-ringer-back", "", "Regular", "₹799"),
+      piece("It's Light Out Shirt",        "Shirt",         "striped-shirt-front", "striped-shirt-red-back", "", "Boxy", "₹1,200"),
+      piece("Emotionally Expensive Shirt", "Shirt",         "striped-shirt-red-front", "striped-shirt-back", "", "Boxy", "₹1,200"),
+      piece("Fear Of Missing Out Tee",     "Oversized tee", "fomo-front", "", "", "Oversized", "₹999"),
+      piece("All We Need Is Money Tee",    "Oversized tee", "money-front", "", "", "Oversized", "₹999"),
+      piece("All Things Must Pass Tee",    "Oversized tee", "all-things-front", "", "", "Oversized", "₹999"),
+      piece("Shell Ringer Tee",            "Ringer tee",    "shell-ringer-front", "", "", "Regular", "₹799"),
+      piece("Golden Days Long Sleeve",     "Long sleeve",   "golden-days-front", "", "", "Boxy", "₹1,199")
     ],
     /* shipping cost and delivery time, e.g. "₹79 shipping · 5 to 8 days". "" keeps the general line */
-    shippingLine: "",
+    shippingLine: "Free shipping all over India",
     /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
     pricesByType: {},
     /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
     codFee: "₹100",
     /* Google Sheet the brand edits (the long ID from its link). When set, the site loads the pieces and prices
        from it on every visit and falls back to the list above if the sheet can't be reached. "" uses the list above */
-    sheetId: "1qOp2tefs4hHraaiwh3sc12O6ViW1erJFn1Ef5TFAz-I"
+    sheetId: "1W5sauOFeda6hPYEzUmaYtzRKRhTT3DmWjL2bRIc5y7w"
   };
 
   (function () {
@@ -815,7 +812,7 @@
     if (CONFIG.sheetId) {
       var ctl = window.AbortController ? new AbortController() : null;
       setTimeout(function () { if (ctl) ctl.abort(); }, 6000);
-      fetch("https://docs.google.com/spreadsheets/d/" + encodeURIComponent(CONFIG.sheetId) + "/gviz/tq?tqx=out:csv&headers=1&gid=0", ctl ? { signal: ctl.signal } : {})
+      fetch("https://docs.google.com/spreadsheets/d/" + encodeURIComponent(CONFIG.sheetId) + "/gviz/tq?tqx=out:csv&headers=1", ctl ? { signal: ctl.signal } : {})
         .then(function (r) { if (!r.ok) throw new Error("sheet " + r.status); return r.text(); })
         .then(function (t) {
           var list = fromSheet(parseCSV(t));
