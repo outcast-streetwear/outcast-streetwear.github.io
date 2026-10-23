@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "description": "Only for tools/build-piece-pages.mjs. The site itself needs no build.",
+  "scripts": {
+    "pages": "node tools/build-piece-pages.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

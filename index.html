@@ -392,7 +392,7 @@
   <section id="how" style="padding-top:0">
     <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
-      <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, tap "Place order" and fill in your details. No account needed.</p></li>
+      <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, and tap "Order now", or add a few pieces to your bag first. Fill in your details. No account needed.</p></li>
       <li><h3>Pay your way</h3><p>Pay the full amount online by UPI (GPay, PhonePe or Paytm), or choose cash on delivery for ₹100 extra. We contact you on your mobile to confirm.</p></li>
       <li><h3>We ship it</h3><p>Packed and sent free to anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
@@ -512,8 +512,16 @@
   };
 
   (function () {
+    /* each piece's link name, e.g. "It's Light Out Shirt" -> its-light-out-shirt. tools/build-piece-pages.mjs makes the same
+       names for the link preview pages, so change both together. Section names are skipped so #shop still scrolls */
+    var TAKEN = { top: 1, shop: 1, custom: 1, how: 1 };
+    function slugify(name) { return (name || "").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "piece"; }
     function prepare(list) {
+      var seen = {};
       list.forEach(function (p) {
+        var base = slugify(p.name), sl = TAKEN[base] ? base + "-piece" : base, k = 2;
+        while (seen[sl]) sl = base + "-" + k++;
+        seen[sl] = 1; p.slug = sl;
         if (!p.price && CONFIG.pricesByType[p.type]) p.price = CONFIG.pricesByType[p.type];
         if (CONFIG.shippingLine) p.details[2] = ["Shipping", CONFIG.shippingLine];
       });
@@ -998,14 +1006,24 @@
       var bar = el("div", "buybar"), two = el("div", "buy2"); two.appendChild(add); two.appendChild(order); bar.appendChild(two); mBuy.appendChild(bar); mBuy.appendChild(added);
       var payLine = "Pay online by UPI" + (CONFIG.codFee ? ", or cash on delivery (" + CONFIG.codFee + " extra)." : ".");
       mBuy.appendChild(el("p", "note", (CONFIG.shippingLine || "Shipping all over India") + ". " + payLine));
+      /* shares the piece's preview page (p/<slug>/), which shows its own picture on WhatsApp and Instagram */
+      var shr = el("button", "linkbtn", "Share this piece"), said = el("span", "note"); shr.type = "button"; said.setAttribute("role", "status");
+      shr.onclick = function () {
+        var url = new URL("p/" + p.slug + "/", location.href.split("#")[0]).href;
+        if (navigator.share) { navigator.share({ title: p.name + " · " + CONFIG.brand, url: url }).catch(function () {}); return; }
+        (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(url) : Promise.reject())
+          .then(function () { said.textContent = " Link copied."; }, function () { said.textContent = " " + url; });
+      };
+      var sp = el("p"); sp.appendChild(shr); sp.appendChild(said); mBuy.appendChild(sp);
       if (p.story) mBuy.appendChild(el("p", "m-desc", p.story));
       var dl = el("ul"); (p.details || []).forEach(function (d) { var li = el("li"); li.appendChild(el("span", null, d[0])); li.appendChild(el("span", null, d[1])); dl.appendChild(li); }); mBuy.appendChild(dl);
 
       modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); document.body.classList.add("lock"); modal.scrollTop = 0;
       /* a history entry per open page, so the phone's Back button closes the piece instead of leaving the site */
-      var h = "#piece-" + (i + 1);
+      var h = "#" + p.slug;
       if (location.hash !== h) {
-        try { if (wasOpen) history.replaceState(null, "", h); else { history.pushState(null, "", h); pushed = true; } } catch (e) {}
+        /* arriving on an old #piece-3 link swaps the address in place, so Back still leaves the piece */
+        try { if (wasOpen || pieceFromHash() === i) history.replaceState(null, "", h); else { history.pushState(null, "", h); pushed = true; } } catch (e) {}
       }
       current = i;
       modal.focus();
@@ -1034,9 +1052,16 @@
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
+    /* #fragile-tee, or the older #piece-3 links */
+    function pieceFromHash() {
+      var h = location.hash.slice(1), m = /^piece-(\d+)$/.exec(h);
+      try { h = decodeURIComponent(h); } catch (e) {}
+      for (var k = 0; k < P.length; k++) if (P[k].slug === h) return k;
+      return m && P[+m[1] - 1] ? +m[1] - 1 : -1;
+    }
     function fromHash() {
-      var m = /^#piece-(\d+)$/.exec(location.hash), i = m ? +m[1] - 1 : -1;
-      if (P[i]) { if (current !== i) openPiece(i, null); }
+      var i = pieceFromHash();
+      if (i >= 0) { if (current !== i) openPiece(i, null); }
       else { pushed = false; hidePiece(); }
     }
     fromHash(); window.addEventListener("popstate", fromHash); window.addEventListener("hashchange", fromHash);
@@ -1099,7 +1124,7 @@
           if (!list.length) return;
           P = prepare(list); active = "All";
           renderRack(); renderFilters(); renderGrid(); reveal(rackIn.children); rackEnds();
-          if (modal.classList.contains("open")) { current = -1; fromHash(); }
+          if (modal.classList.contains("open") || pieceFromHash() >= 0) { current = -1; fromHash(); }
         })
         .catch(function () { /* keep the built-in list */ })
         .then(function () { sheetDone = true; if (bagSheet.classList.contains("open")) renderBag(); bagCount(); });
