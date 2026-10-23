@@ -11,6 +11,12 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
 - Leave `orderEndpoint` empty to run in demo mode (nothing is sent).
 
 **2. Products**
+- Day to day, the brand edits the Google Sheet "Outcast website pieces" (its ID is `sheetId` in `index.html`). The site reads it on every visit:
+  - **Show**: `no` hides a piece (sold out). **Price**: type a number like `1499`, it shows as ₹1,499.
+  - **Photo / Back photo**: either an existing image name from `images/` (e.g. `fomo-front`) or a Google Drive link to a photo shared "Anyone with the link".
+  - The first row (headings) must stay as it is. If the sheet can't be reached, the site uses the built-in list below.
+- The sheet must be shared as "Anyone with the link: Viewer" for the site to read it.
+- The built-in list (fallback):
 - Each piece is one `piece(...)` line: name, type, front image, back image (`""` if none), tag (`"New"` or `""`), fit.
 - Images go in `images/` as `.webp` cutouts on a transparent background.
 - Prices, headlines and stories: set them after the list, e.g. `CONFIG.products[0].price = "₹1,499";`

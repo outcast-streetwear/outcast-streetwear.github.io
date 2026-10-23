@@ -453,15 +453,21 @@
     /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
     pricesByType: {},
     /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
-    codFee: "₹100"
+    codFee: "₹100",
+    /* Google Sheet the brand edits (the long ID from its link). When set, the site loads the pieces and prices
+       from it on every visit and falls back to the list above if the sheet can't be reached. "" uses the list above */
+    sheetId: "1qOp2tefs4hHraaiwh3sc12O6ViW1erJFn1Ef5TFAz-I"
   };
-  CONFIG.products.forEach(function (p) {
-    if (!p.price && CONFIG.pricesByType[p.type]) p.price = CONFIG.pricesByType[p.type];
-    if (CONFIG.shippingLine) p.details[2] = ["Shipping", CONFIG.shippingLine];
-  });
 
   (function () {
-    var P = CONFIG.products;
+    function prepare(list) {
+      list.forEach(function (p) {
+        if (!p.price && CONFIG.pricesByType[p.type]) p.price = CONFIG.pricesByType[p.type];
+        if (CONFIG.shippingLine) p.details[2] = ["Shipping", CONFIG.shippingLine];
+      });
+      return list;
+    }
+    var P = prepare(CONFIG.products);
     document.getElementById("yr").textContent = new Date().getFullYear();
 
     function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -603,14 +609,18 @@
       t.appendChild(el("i")); t.appendChild(el("span", null, p.price || "Price soon")); return t;
     }
     var rack = document.getElementById("rack"), rackIn = document.getElementById("rack-in");
-    P.forEach(function (p, i) {
+    function renderRack() {
+     rackIn.innerHTML = "";
+     P.forEach(function (p, i) {
       if (i >= 8) return;
       var b = el("button", "hang"); b.type = "button"; b.setAttribute("aria-label", "View " + p.name);
       b.appendChild(garment(p, i, "front")); if (!p.photo) b.appendChild(tagEl(p, i)); b.appendChild(el("span", "hang-name", p.name)); b.appendChild(el("span", "hang-price", p.price || "Price coming soon"));
       b.onclick = function () { openPiece(i, b); };
       hoverBack(b, p);
       rackIn.appendChild(b);
-    });
+     });
+    }
+    renderRack();
     var prevBtn = document.getElementById("prev"), nextBtn = document.getElementById("next");
     function rackStep(dir) { rack.scrollBy({ left: dir * Math.max(240, rack.clientWidth * 0.7), behavior: "smooth" }); }
     function rackEnds() {
@@ -649,10 +659,10 @@
     }
 
     /* grid + filters */
-    var types = ["All"]; P.forEach(function (p) { if (types.indexOf(p.type) < 0) types.push(p.type); });
     var active = "All", fbox = document.getElementById("filters"), grid = document.getElementById("grid");
     function renderFilters() {
       fbox.innerHTML = "";
+      var types = ["All"]; P.forEach(function (p) { if (types.indexOf(p.type) < 0) types.push(p.type); });
       types.forEach(function (t) {
         var b = el("button", "chip", t); b.type = "button"; b.setAttribute("aria-pressed", t === active ? "true" : "false");
         b.onclick = function () { active = t; renderFilters(); renderGrid(); };
@@ -760,6 +770,62 @@
       else { pushed = false; hidePiece(); }
     }
     fromHash(); window.addEventListener("popstate", fromHash); window.addEventListener("hashchange", fromHash);
+
+    /* live pieces and prices from the brand's Google Sheet (columns: Show, Name, Type, Price, Fit, Tag, Photo, Back photo, Headline, Story) */
+    function parseCSV(t) {
+      var rows = [], row = [], f = "", q = false;
+      for (var k = 0; k < t.length; k++) {
+        var c = t[k];
+        if (q) { if (c === '"') { if (t[k + 1] === '"') { f += '"'; k++; } else q = false; } else f += c; }
+        else if (c === '"') q = true;
+        else if (c === ",") { row.push(f); f = ""; }
+        else if (c === "\n" || c === "\r") { if (c === "\r" && t[k + 1] === "\n") k++; row.push(f); rows.push(row); row = []; f = ""; }
+        else f += c;
+      }
+      if (f || row.length) { row.push(f); rows.push(row); }
+      return rows;
+    }
+    function photoURL(v) {
+      v = (v || "").trim();
+      var d = /drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]{20,})/.exec(v);
+      if (d) return "https://drive.google.com/thumbnail?id=" + d[1] + "&sz=w1000";
+      if (/^https:\/\//.test(v)) return v;
+      if (/^[\w-]+$/.test(v)) return "images/" + v + ".webp";
+      return "";
+    }
+    function money(v) {
+      v = (v || "").trim();
+      if (/^\d+(\.\d+)?$/.test(v)) return "₹" + Math.round(+v).toLocaleString("en-IN");
+      return v;
+    }
+    function fromSheet(rows) {
+      var head = (rows.shift() || []).map(function (h) { return h.trim().toLowerCase(); });
+      function col(r, name) { var k = head.indexOf(name); return k < 0 ? "" : (r[k] || "").trim(); }
+      var out = [];
+      rows.forEach(function (r) {
+        var name = col(r, "name"), type = col(r, "type") || "Tee";
+        if (!name || /^(no|n|hide|hidden|false|0)$/i.test(col(r, "show"))) return;
+        var p = piece(name, type, "x", "", col(r, "tag"), col(r, "fit") || "Regular");
+        p.photo = photoURL(col(r, "photo")); p.photoBack = photoURL(col(r, "back photo"));
+        p.price = money(col(r, "price")); p.headline = col(r, "headline"); p.story = col(r, "story");
+        out.push(p);
+      });
+      return out;
+    }
+    if (CONFIG.sheetId) {
+      var ctl = window.AbortController ? new AbortController() : null;
+      setTimeout(function () { if (ctl) ctl.abort(); }, 6000);
+      fetch("https://docs.google.com/spreadsheets/d/" + encodeURIComponent(CONFIG.sheetId) + "/gviz/tq?tqx=out:csv&headers=1&gid=0", ctl ? { signal: ctl.signal } : {})
+        .then(function (r) { if (!r.ok) throw new Error("sheet " + r.status); return r.text(); })
+        .then(function (t) {
+          var list = fromSheet(parseCSV(t));
+          if (!list.length) return;
+          P = prepare(list); active = "All";
+          renderRack(); renderFilters(); renderGrid(); reveal(rackIn.children); rackEnds();
+          if (modal.classList.contains("open")) { current = -1; fromHash(); }
+        })
+        .catch(function () { /* keep the built-in list */ });
+    }
 
     /* custom design form */
     document.getElementById("custom-form").addEventListener("submit", function (e) {
