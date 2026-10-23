@@ -496,7 +496,7 @@
       [].slice.call(ok.querySelectorAll(".pay-bit")).forEach(function (x) { x.remove(); });
       okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
         : "Your order ID is " + pending.id + ". " + (pending.cod
-            ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives (" + CONFIG.codFee + " cash on delivery charge included)."
+            ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives, plus the " + CONFIG.codFee + " cash on delivery charge."
             : pending.pay ? "Pay below to confirm it." : "We'll send UPI payment details to +91 " + contact + ". We ship once it's paid.") + " Screenshot this for reference.";
       if (pending && pending.pay && !pending.cod) {
         var a = el("a", "btn dark block pay-bit", "Pay now (UPI / card)"); a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
