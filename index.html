@@ -401,7 +401,7 @@
     <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
       <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, and tap "Order now", or add a few pieces to your bag first. Fill in your details. No account needed.</p></li>
-      <li><h3>Pay your way</h3><p>Pay the full amount online by UPI (GPay, PhonePe or Paytm), or choose cash on delivery for ₹100 extra. We contact you on your mobile to confirm.</p></li>
+      <li><h3>Pay to confirm</h3><p>Pay the full amount online by UPI (GPay, PhonePe or Paytm). Your order is confirmed once it's paid. We don't take cash on delivery.</p></li>
       <li><h3>We ship it</h3><p>Packed and sent free to anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
@@ -515,7 +515,7 @@
     /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
     pricesByType: {},
     /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
-    codFee: "₹100",
+    codFee: "",
     /* the brand's UPI ID for instant payment, e.g. "outcast@ybl" (a business UPI ID works best).
        When set, UPI orders get a "Pay now" button on phones and a QR code on laptops. "" hides it */
     upiId: "",
@@ -680,6 +680,7 @@
       /* a Razorpay link is for one piece at a fixed amount, so it's only offered for a single piece */
       pending = { lines: lines, pay: lines.length === 1 && lines[0].qty === 1 ? lines[0].pay : "" };
       document.getElementById("o-cod").style.display = CONFIG.codFee ? "" : "none";
+      document.getElementById("o-pay").style.display = CONFIG.codFee ? "" : "none";
       document.getElementById("o-cod-note").textContent = CONFIG.codFee + " extra, paid in cash when your parcel arrives.";
       form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
       paintSum();
