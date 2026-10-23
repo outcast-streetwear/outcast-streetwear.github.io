@@ -23,7 +23,9 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
 - Images go in `images/` as `.webp` cutouts on a transparent background.
 - Prices, headlines and stories: set them after the list, e.g. `CONFIG.products[0].price = "₹1,499";`
 
-**3. Payment (optional)**
+**3. Payment**
+- Set `upiId` to the brand's UPI ID (a business UPI ID works best). UPI orders then get a **Pay now** button that opens the customer's UPI app with the amount and order ID filled in, or a QR code on laptops. Match payments to orders by the order ID in the payment note.
+- Addresses are checked with India Post's free pincode lookup (api.postalpincode.in): a pincode that doesn't exist can't be ordered to. If the lookup is down, orders still go through.
 - In the brand's own Razorpay dashboard, create a Payment Link per product and paste its public URL (`https://rzp.io/...`) into that product's `payLink`.
 - A payment link has a fixed amount, so **Pay now** only appears when the order is one piece, quantity 1. Bigger orders get UPI details by message.
 

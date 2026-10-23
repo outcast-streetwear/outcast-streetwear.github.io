@@ -226,7 +226,12 @@
   .sheet-msg { font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap; background: var(--surface); border: 1px dashed var(--line); padding: 12px; max-height: 190px; overflow-y: auto; }
   .sheet-row { display: grid; gap: 10px; }
   .sheet-card .f { display: grid; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 500; }
-  .sheet-card textarea { min-height: 76px; }
+  .sheet-card textarea { min-height: 64px; }
+  .addr-row { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; }
+  .pin-ok { font-size: 13px; color: #1B7A3A; min-height: 1.2em; margin-top: -6px; }
+  .pin-ok.bad { color: #B3261E; }
+  .upi-qr { display: grid; justify-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); padding: 12px; }
+  .upi-qr img { width: 180px; height: 180px; image-rendering: pixelated; }
   .payopts { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
   .payopts legend { font-size: 13px; color: var(--muted); font-weight: 500; padding: 0; margin-bottom: 6px; }
   .payopts label { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; border: 2px solid var(--line); background: var(--surface); padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
@@ -429,7 +434,13 @@
       <label class="f">Your name<input type="text" id="o-name" autocomplete="name"></label>
       <label class="f">Mobile number<input type="tel" id="o-contact" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="10-digit number"></label>
       <label class="f">Instagram handle (optional)<input type="text" id="o-ig" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@yourhandle"></label>
-      <label class="f">Delivery address and pincode<textarea id="o-addr" autocomplete="street-address"></textarea></label>
+      <label class="f">House / flat, building and street<textarea id="o-addr" autocomplete="address-line1" placeholder="e.g. Flat 4B, Sunrise Apartments, MG Road"></textarea></label>
+      <div class="addr-row">
+        <label class="f">Pincode<input type="text" id="o-pin" inputmode="numeric" autocomplete="postal-code" maxlength="6" placeholder="6 digits"></label>
+        <label class="f">Area / locality<input type="text" id="o-area" list="o-areas" autocomplete="address-level3" placeholder="Fills in from pincode"></label>
+      </div>
+      <datalist id="o-areas"></datalist>
+      <div class="pin-ok" id="o-pin-ok" aria-live="polite"></div>
       <input type="text" id="o-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
       <fieldset class="payopts" id="o-pay">
         <legend>Payment</legend>
@@ -505,6 +516,9 @@
     pricesByType: {},
     /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
     codFee: "₹100",
+    /* the brand's UPI ID for instant payment, e.g. "outcast@ybl" (a business UPI ID works best).
+       When set, UPI orders get a "Pay now" button on phones and a QR code on laptops. "" hides it */
+    upiId: "",
     /* Google Sheet the brand edits (the long ID from its link). When set, the site loads the pieces and prices
        from it on every visit and falls back to the list above if the sheet can't be reached. "" uses the list above */
     sheetId: "1W5sauOFeda6hPYEzUmaYtzRKRhTT3DmWjL2bRIc5y7w",
@@ -622,13 +636,33 @@
         box.appendChild(im); box.appendChild(inner); ok.appendChild(box);
       }).catch(function () { /* the order ID in the text above is still there */ });
     }
+    /* instant UPI payment: a upi:// link opens the customer's UPI app with the amount and order ID filled in */
+    function upiReady() { return /^[\w.\-]{2,}@[a-z]{2,}$/i.test(CONFIG.upiId || "") && pending && !isNaN(pending.total) && pending.total > 0; }
+    function upiPay() {
+      var uri = "upi://pay?pa=" + encodeURIComponent(CONFIG.upiId) + "&pn=" + encodeURIComponent(CONFIG.brand) + "&am=" + pending.total.toFixed(2) +
+                "&cu=INR&tn=" + encodeURIComponent("Order " + pending.id);
+      if (matchMedia("(pointer: coarse)").matches) {
+        var a = el("a", "btn red block pay-bit", "Pay " + inr(pending.total) + " with UPI"); a.href = uri;
+        ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Opens GPay, PhonePe or Paytm with the amount filled in. Or pay " + CONFIG.upiId + " and add " + pending.id + " as the note."));
+        a.focus(); return;
+      }
+      var box = el("div", "upi-qr pay-bit");
+      box.appendChild(el("b", null, "Scan to pay " + inr(pending.total)));
+      box.appendChild(el("span", "note", "UPI ID " + CONFIG.upiId + " · note " + pending.id));
+      ok.appendChild(box); sheetClose.focus();
+      var go = function () { var q = qrcode(0, "M"); q.addData(uri); q.make(); var im = el("img"); im.src = q.createDataURL(6, 2); im.alt = "UPI QR code to pay " + inr(pending.total); box.insertBefore(im, box.children[1]); };
+      if (window.qrcode) return go();
+      var sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"; sc.onload = go; document.head.appendChild(sc);
+    }
     function showDone(contact, demo) {
       form.style.display = "none"; ok.classList.add("on");
       [].slice.call(ok.querySelectorAll(".pay-bit, .card-bit")).forEach(function (x) { x.remove(); });
       okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
         : "Your order ID is " + pending.id + ". " + (pending.cod
             ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives, plus the " + CONFIG.codFee + " cash on delivery charge."
+            : upiReady() ? "Pay " + inr(pending.total) + " now with any UPI app to confirm it. We ship once it's paid."
             : pending.pay ? "Pay below to confirm it." : "We'll send UPI payment details to +91 " + contact + ". We ship once it's paid.") + " Screenshot this for reference.";
+      if (!demo && !pending.cod && upiReady()) { upiPay(); return addCard(pending.id, pending.lines); }
       if (pending && pending.pay && !pending.cod) {
         var a = el("a", "btn dark block pay-bit", "Pay now (UPI / card)"); a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
         ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
@@ -653,27 +687,64 @@
       document.getElementById("o-name").focus();
     }
     form.addEventListener("change", function (e) { if (e.target.name === "opay" && pending) paintSum(); });
+    /* pincode check: India Post's free lookup says whether a pincode exists and gives its district, state and areas */
+    var PIN = {}, pinBox = document.getElementById("o-pin"), pinOk = document.getElementById("o-pin-ok"), areaList = document.getElementById("o-areas");
+    function lookupPin(pin) {
+      if (!PIN[pin]) PIN[pin] = fetch("https://api.postalpincode.in/pincode/" + pin).then(function (r) { return r.json(); }).then(function (j) {
+        var r = j && j[0], po = r && r.PostOffice;
+        if (!r || r.Status !== "Success" || !po || !po.length) return { ok: false };
+        return { ok: true, city: po[0].District, state: po[0].State, areas: po.map(function (x) { return x.Name; }) };
+      }).catch(function () { delete PIN[pin]; return { ok: null }; }); /* null: couldn't check, so don't block the order */
+      return PIN[pin];
+    }
+    pinBox.addEventListener("input", function () {
+      var pin = pinBox.value.replace(/\D/g, "").slice(0, 6);
+      if (pin !== pinBox.value) pinBox.value = pin;
+      pinOk.className = "pin-ok"; pinOk.textContent = ""; areaList.innerHTML = "";
+      if (pin.length < 6) return;
+      if (!/^[1-9]/.test(pin)) { pinOk.className = "pin-ok bad"; pinOk.textContent = "Pincodes don't start with 0."; return; }
+      pinOk.textContent = "Checking pincode...";
+      lookupPin(pin).then(function (res) {
+        if (pinBox.value !== pin) return;
+        if (res.ok === false) { pinOk.className = "pin-ok bad"; pinOk.textContent = "We can't find this pincode. Check it."; return; }
+        if (res.ok === null) { pinOk.textContent = ""; return; }
+        pinOk.textContent = "✓ " + res.city + ", " + res.state;
+        res.areas.forEach(function (a) { var o = el("option"); o.value = a; areaList.appendChild(o); });
+      });
+    });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var name = document.getElementById("o-name").value.trim(), contact = document.getElementById("o-contact").value.trim(), addr = document.getElementById("o-addr").value.trim();
+      var name = document.getElementById("o-name").value.trim(), contact = document.getElementById("o-contact").value.trim(), line = document.getElementById("o-addr").value.trim(),
+          pin = pinBox.value.trim(), area = document.getElementById("o-area").value.trim(), addr = "";
       if (!name) { bad(oErr, "o-name", "Add your name."); return; }
       contact = mobile(contact);
       if (!contact) { bad(oErr, "o-contact", "Add a valid 10-digit Indian mobile number."); return; }
       var ig = document.getElementById("o-ig").value.trim().replace(/^@/, "");
-      if (addr.length < 10 || !/\d{6}/.test(addr.replace(/\s/g, ""))) { bad(oErr, "o-addr", "Add your full delivery address with the 6-digit pincode."); return; }
-      oErr.textContent = "";
+      if (line.length < 6 || !/[a-z]/i.test(line)) { bad(oErr, "o-addr", "Add your house or flat number, building and street."); return; }
+      if (!/^[1-9]\d{5}$/.test(pin)) { bad(oErr, "o-pin", "Add your 6-digit pincode."); return; }
+      if (!area) { bad(oErr, "o-area", "Add your area or locality."); return; }
+      oErr.textContent = ""; oSend.disabled = true; oSend.textContent = "Checking address...";
+      lookupPin(pin).then(function (res) {
+        oSend.disabled = false; oSend.textContent = "Send order";
+        if (res.ok === false) { bad(oErr, "o-pin", "This pincode doesn't exist. Check it and try again."); return; }
+        addr = line + ", " + area + (res.ok ? ", " + res.city + ", " + res.state : "") + " - " + pin;
+        placeOrder(name, contact, ig, addr);
+      });
+    });
+    function placeOrder(name, contact, ig, addr) {
       pending.id = orderId(); pending.name = name;
       pending.cod = codPicked();
       if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
       oSend.disabled = true; oSend.textContent = "Sending...";
       var L = pending.lines, t = totals(L, pending.cod), count = 0;
+      pending.total = t.sub;
       L.forEach(function (l) { count += l.qty; });
       var items = L.map(function (l) { return l.name + " (" + l.type + ") · " + l.size + " × " + l.qty + " · " + (l.price ? l.price + " each" : "price not shown"); }).join("\n");
       sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, items: items, item_count: String(count), subtotal_shown: isNaN(t.sub) ? "-" : inr(t.sub), payment: pending.cod ? "Cash on delivery (+" + CONFIG.codFee + ")" : "UPI, full amount" },
         "Order " + pending.id + (pending.cod ? " [COD]" : " [UPI]") + ": " + (L.length === 1 ? L[0].name + " (" + L[0].size + " x" + L[0].qty + ")" : count + " items"))
         .then(function (r) { bag = []; saveBag(); bagCount(); showDone(contact, !!r.demo); })
         .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
-    });
+    }
     sheetClose.onclick = closeSheet;
     sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
     /* Escape closes a sheet and Tab stays inside it (runs before the product page's own keys) */
