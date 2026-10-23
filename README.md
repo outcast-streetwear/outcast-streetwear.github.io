@@ -16,6 +16,7 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
   - **Photo / Back photo**: either an existing image name from `images/` (e.g. `fomo-front`) or a Google Drive link to a photo shared "Anyone with the link".
   - The first row (headings) must stay as it is. If the sheet can't be reached, the site uses the built-in list below.
 - The sheet must be shared as "Anyone with the link: Viewer" for the site to read it.
+- **Size guide**: add a second tab named exactly `Sizes`. Row 1: `Fit`, `Size`, then one column per measurement, e.g. `Chest (cm)`, `Length (cm)`, `Shoulder (cm)`, `Sleeve (cm)` (the headings are shown as typed). Each row after that is one size of one fit, e.g. `Oversized | M | … | …`. In the `Fit` column you can also write a type (e.g. `Hoodie`) when hoodies measure differently from tees of the same fit; a type wins over a fit. A piece shows a "Size guide" link only when its fit or type has rows. Use real measurements from the supplier, taken with the piece laid flat.
 - The built-in list (fallback):
 - Each piece is one `piece(...)` line: name, type, front image, back image (`""` if none), tag (`"New"` or `""`), fit.
 - Images go in `images/` as `.webp` cutouts on a transparent background.

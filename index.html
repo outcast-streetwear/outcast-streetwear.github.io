@@ -175,6 +175,15 @@
   .qty button:hover { background: var(--ink); color: var(--bg); }
   .qty output { min-width: 44px; display: grid; place-items: center; font-weight: 600; }
   .note { font-size: 13px; color: var(--muted); }
+  .lblrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .guide { margin-top: 14px; overflow-x: auto; }
+  .guide table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .guide caption { text-align: left; font-weight: 600; padding-bottom: 6px; }
+  .guide th, .guide td { text-align: left; font-weight: 400; padding: 7px 12px 7px 0; border-top: 1px solid var(--line); white-space: nowrap; }
+  .guide thead th { color: var(--muted); font-weight: 600; border-top: 0; }
+  .guide tr.on th, .guide tr.on td { font-weight: 600; }
+  .guide tr.on th::after { content: " ←"; color: var(--red); }
+  .guide p { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
   /* custom */
   .custom { border: 2px solid var(--ink); display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }
@@ -495,7 +504,11 @@
     codFee: "₹100",
     /* Google Sheet the brand edits (the long ID from its link). When set, the site loads the pieces and prices
        from it on every visit and falls back to the list above if the sheet can't be reached. "" uses the list above */
-    sheetId: "1W5sauOFeda6hPYEzUmaYtzRKRhTT3DmWjL2bRIc5y7w"
+    sheetId: "1W5sauOFeda6hPYEzUmaYtzRKRhTT3DmWjL2bRIc5y7w",
+    /* size guide, used when the sheet has no "Sizes" tab. Keyed by fit (e.g. "Oversized") or by type (e.g. "Hoodie"),
+       and a type wins over a fit. First row is the headings. Leave {} until the real measurements are in, e.g.
+       "Oversized": [["Size", "Chest (cm)", "Length (cm)"], ["S", "…", "…"], ["M", "…", "…"]] */
+    sizeChart: {}
   };
 
   (function () {
@@ -909,6 +922,41 @@
     reveal(rackIn.children);
     reveal(document.querySelectorAll(".sec-head, .drop-head, .filters, .custom, .steps li, footer"));
 
+    /* size guide: from the sheet's "Sizes" tab (columns Fit, Size, then any measurements), or CONFIG.sizeChart */
+    var SIZES = {}, paintGuide = function () {};
+    for (var fk in CONFIG.sizeChart) SIZES[fk.trim().toLowerCase()] = CONFIG.sizeChart[fk];
+    function fitOf(p) { var d = (p.details || []).filter(function (x) { return x[0] === "Fit"; })[0]; return d ? d[1] : ""; }
+    function chartFor(p) { return SIZES[(p.type || "").toLowerCase()] || SIZES[fitOf(p).toLowerCase()] || null; }
+    function guideFor(p, btn, box) {
+      var rows = chartFor(p), was = !box.hidden;
+      box.innerHTML = "";
+      if (!rows || rows.length < 2) { btn.hidden = true; box.hidden = true; return; }
+      btn.hidden = false; box.hidden = !was;
+      var pick = document.querySelector("input[name=msize]:checked"), t = el("table"), th = el("thead"), tb = el("tbody"), hr = el("tr");
+      t.appendChild(el("caption", null, (SIZES[(p.type || "").toLowerCase()] ? p.type : fitOf(p) + " fit") + " measurements"));
+      rows[0].forEach(function (h) { var c = el("th", null, h); c.scope = "col"; hr.appendChild(c); });
+      th.appendChild(hr); t.appendChild(th);
+      rows.slice(1).forEach(function (r) {
+        var tr = el("tr"); if (pick && String(r[0]).trim().toUpperCase() === pick.value) tr.className = "on";
+        r.forEach(function (v, k) { var c = el(k ? "td" : "th", null, v); if (!k) c.scope = "row"; tr.appendChild(c); });
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); box.appendChild(t);
+      box.appendChild(el("p", null, "Measured with the piece laid flat. Compare with a piece you own that fits you well."));
+    }
+    function sizesFromSheet(rows) {
+      var head = (rows.shift() || []).map(function (h) { return h.trim(); }), out = {}, n = 0;
+      /* a sheet without a "Sizes" tab can answer with another tab, so only accept the right headings */
+      if (!/^fit/i.test(head[0] || "") || !/^size$/i.test(head[1] || "")) return null;
+      rows.forEach(function (r) {
+        var key = (r[0] || "").trim().toLowerCase(), cells = r.slice(1, head.length).map(function (v) { return (v || "").trim(); });
+        if (!key || !cells[0]) return;
+        if (!out[key]) out[key] = [head.slice(1)];
+        out[key].push(cells); n++;
+      });
+      return n ? out : null;
+    }
+
     /* product page */
     var modal = document.getElementById("modal"), mBody = modal.querySelector(".m-body"), mImg = document.getElementById("m-img"), mBuy = document.getElementById("m-buy"), closeBtn = document.getElementById("m-close"), opener = null, current = -1, pushed = false;
     function openPiece(i, from) {
@@ -922,10 +970,15 @@
       var t3 = el("h3", null, p.name); t3.id = "m-title"; mBuy.appendChild(t3);
       if (p.headline) mBuy.appendChild(el("p", "m-head", p.headline));
       mBuy.appendChild(el("div", "m-price", p.price || "Price coming soon"));
-      var sz = el("div"); sz.appendChild(el("div", "lbl", "Size"));
+      var sz = el("div"), lr = el("div", "lblrow"), gb = el("button", "linkbtn", "Size guide"), guide = el("div", "guide");
+      gb.type = "button"; gb.id = "m-guide-btn"; guide.id = "m-guide"; guide.hidden = true; gb.setAttribute("aria-controls", "m-guide"); gb.setAttribute("aria-expanded", "false");
+      gb.onclick = function () { var show = guide.hidden; guide.hidden = !show; gb.setAttribute("aria-expanded", String(show)); };
+      lr.appendChild(el("div", "lbl", "Size")); lr.appendChild(gb); sz.appendChild(lr);
       var sizes = el("div", "sizes"), nm = "msize";
       ["S", "M", "L", "XL", "XXL"].forEach(function (s) { var lab = el("label"), inp = el("input"); inp.type = "radio"; inp.name = nm; inp.value = s; if (s === "L") inp.checked = true; lab.appendChild(inp); lab.appendChild(el("span", null, s)); sizes.appendChild(lab); });
-      sz.appendChild(sizes); mBuy.appendChild(sz);
+      sz.appendChild(sizes); sz.appendChild(guide); mBuy.appendChild(sz);
+      paintGuide = function () { guideFor(p, gb, guide); };
+      paintGuide(); sizes.addEventListener("change", paintGuide);
       var q = el("div"); q.appendChild(el("div", "lbl", "Quantity"));
       var qty = el("div", "qty"), out = el("output", null, "1"), n = 1;
       var minus = el("button", null, "−"); minus.type = "button"; minus.setAttribute("aria-label", "Fewer");
@@ -1029,11 +1082,18 @@
       });
       return out;
     }
-    if (CONFIG.sheetId) {
+    function sheetCSV(tab) {
       var ctl = window.AbortController ? new AbortController() : null;
       setTimeout(function () { if (ctl) ctl.abort(); }, 6000);
-      fetch("https://docs.google.com/spreadsheets/d/" + encodeURIComponent(CONFIG.sheetId) + "/gviz/tq?tqx=out:csv&headers=1", ctl ? { signal: ctl.signal } : {})
-        .then(function (r) { if (!r.ok) throw new Error("sheet " + r.status); return r.text(); })
+      /* no tab named: the sheet's first tab, which holds the pieces */
+      return fetch("https://docs.google.com/spreadsheets/d/" + encodeURIComponent(CONFIG.sheetId) + "/gviz/tq?tqx=out:csv&headers=1" + (tab ? "&" + tab : ""), ctl ? { signal: ctl.signal } : {})
+        .then(function (r) { if (!r.ok) throw new Error("sheet " + r.status); return r.text(); });
+    }
+    if (CONFIG.sheetId) {
+      sheetCSV("sheet=Sizes")
+        .then(function (t) { var s2 = sizesFromSheet(parseCSV(t)); if (s2) { SIZES = s2; paintGuide(); } })
+        .catch(function () { /* keep CONFIG.sizeChart */ });
+      sheetCSV("")
         .then(function (t) {
           var list = fromSheet(parseCSV(t));
           if (!list.length) return;
