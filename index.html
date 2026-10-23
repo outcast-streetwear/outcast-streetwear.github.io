@@ -732,8 +732,8 @@
       if (!totalOnly) box.appendChild(ul);
       if (isNaN(t.pieces)) return;
       function row(a, b, cls) { var d = el("div", "sum-tot" + (cls ? " " + cls : "")); d.appendChild(el("span", null, a)); d.appendChild(el("span", null, b)); box.appendChild(d); }
-      if (cod && !isNaN(t.fee)) { row("Pieces", inr(t.pieces)); row("Cash on delivery", "+" + inr(t.fee), "fee"); row("Subtotal", inr(t.sub), "fee"); }
-      else row("Subtotal", inr(t.pieces));
+      if (cod && !isNaN(t.fee)) { row("Pieces", inr(t.pieces)); row("Cash on delivery", "+" + inr(t.fee), "fee"); row("Total", inr(t.sub), "fee"); }
+      else row("Total", inr(t.pieces));
     }
 
     var bagSheet = document.getElementById("bagsheet"), bagLines = document.getElementById("bag-lines"), bagSum = document.getElementById("bag-sum"), bagGo = document.getElementById("bag-go"), bagFrom = null;
