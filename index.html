@@ -215,6 +215,12 @@
   .sheet-row { display: grid; gap: 10px; }
   .sheet-card .f { display: grid; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 500; }
   .sheet-card textarea { min-height: 76px; }
+  .payopts { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .payopts legend { font-size: 13px; color: var(--muted); font-weight: 500; padding: 0; margin-bottom: 6px; }
+  .payopts label { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; border: 2px solid var(--line); background: var(--surface); padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .payopts label:has(input:checked) { border-color: var(--ink); }
+  .payopts input { accent-color: var(--ink); margin: 0; }
+  .payopts small { grid-column: 2; font-weight: 400; color: var(--muted); font-size: 12.5px; }
   .sheet-sum { font-size: 14px; font-weight: 600; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 0; }
   .sheet-ok { border: 2px solid var(--ink); background: var(--surface); padding: 14px; display: none; gap: 8px; }
   .sheet-ok.on { display: grid; }
@@ -346,8 +352,8 @@
     <div class="sec-head"><span class="mono">Simple</span><h2>How to order</h2></div>
     <ol class="steps">
       <li><h3>Pick a piece</h3><p>Open a piece, choose your size and quantity, tap "Place order" and fill in your details. No account needed.</p></li>
-      <li><h3>Pay to confirm</h3><p>Prepaid only. We text a secure Razorpay payment link (UPI or card) to your mobile. Your order is confirmed once it's paid.</p></li>
-      <li><h3>We ship it</h3><p>Packed and dispatched once payment is received, to anywhere in India. You get tracking once it leaves.</p></li>
+      <li><h3>Pay your way</h3><p>Pay the full amount online by UPI (GPay, PhonePe or Paytm), or choose cash on delivery for ₹100 extra. We contact you on your mobile to confirm.</p></li>
+      <li><h3>We ship it</h3><p>Packed and sent to anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
 
@@ -381,9 +387,14 @@
       <label class="f">Instagram handle (optional)<input type="text" id="o-ig" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@yourhandle"></label>
       <label class="f">Delivery address and pincode<textarea id="o-addr" autocomplete="street-address"></textarea></label>
       <input type="text" id="o-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+      <fieldset class="payopts" id="o-pay">
+        <legend>Payment</legend>
+        <label><input type="radio" name="opay" value="UPI" checked>Pay online by UPI<small>GPay, PhonePe or Paytm. We send you the payment details after you order.</small></label>
+        <label id="o-cod"><input type="radio" name="opay" value="COD">Cash on delivery<small id="o-cod-note"></small></label>
+      </fieldset>
       <button class="btn red block" type="submit" id="o-send">Send order</button>
       <div class="err" id="o-err" role="status" aria-live="polite"></div>
-      <p class="how" style="font-size:12px;color:var(--muted)">Prepaid only. After you send this, we text you a secure Razorpay payment link. Your details are used only for this order (<a href="policies.html#privacy" target="_blank">privacy</a>).</p>
+      <p class="how" style="font-size:12px;color:var(--muted)">Your details are used only for this order (<a href="policies.html#privacy" target="_blank">privacy</a>).</p>
     </form>
     <div class="sheet-ok" id="sheet-ok" role="status" aria-live="polite">
       <h4>Order sent</h4>
@@ -441,7 +452,9 @@
     /* shipping cost and delivery time, e.g. "₹79 shipping · 5 to 8 days". "" keeps the general line */
     shippingLine: "",
     /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
-    pricesByType: {}
+    pricesByType: {},
+    /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
+    codFee: "₹100"
   };
   CONFIG.products.forEach(function (p) {
     if (!p.price && CONFIG.pricesByType[p.type]) p.price = CONFIG.pricesByType[p.type];
@@ -482,8 +495,10 @@
       form.style.display = "none"; ok.classList.add("on");
       [].slice.call(ok.querySelectorAll(".pay-bit")).forEach(function (x) { x.remove(); });
       okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
-        : "Your order ID is " + pending.id + ". " + (pending.pay ? "Pay below to confirm it." : "We'll text a secure payment link to +91 " + contact + ". Your order is confirmed once it's paid; unpaid orders are released after 24 hours.") + " Screenshot this for reference.";
-      if (pending && pending.pay) {
+        : "Your order ID is " + pending.id + ". " + (pending.cod
+            ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives (" + CONFIG.codFee + " cash on delivery charge included)."
+            : pending.pay ? "Pay below to confirm it." : "We'll send UPI payment details to +91 " + contact + ". We ship once it's paid.") + " Screenshot this for reference.";
+      if (pending && pending.pay && !pending.cod) {
         var a = el("a", "btn dark block pay-bit", "Pay now (UPI / card)"); a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
         ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
         a.focus();
@@ -492,7 +507,9 @@
     function openOrder(p, size, qty, from) {
       sheetFrom = from || document.activeElement;
       pending = { piece: p.name + " (" + p.type + ")", price: p.price, size: size, quantity: String(qty), pay: (p.payLink && /^https:\/\//.test(p.payLink)) ? p.payLink : "" };
-      sheetSum.textContent = p.name + " · size " + size + " · quantity " + qty;
+      sheetSum.textContent = p.name + " · size " + size + " · quantity " + qty + (p.price ? " · " + p.price + " each" : "");
+      document.getElementById("o-cod").style.display = CONFIG.codFee ? "" : "none";
+      document.getElementById("o-cod-note").textContent = CONFIG.codFee + " extra, paid in cash when your parcel arrives.";
       form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
       sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
       document.getElementById("o-name").focus();
@@ -507,9 +524,10 @@
       if (addr.length < 10 || !/\d{6}/.test(addr.replace(/\s/g, ""))) { bad(oErr, "o-addr", "Add your full delivery address with the 6-digit pincode."); return; }
       oErr.textContent = "";
       pending.id = orderId(); pending.name = name;
+      pending.cod = form.querySelector("input[name=opay]:checked").value === "COD" && !!CONFIG.codFee;
       if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
       oSend.disabled = true; oSend.textContent = "Sending...";
-      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity, price_shown: pending.price || "-" }, "Order " + pending.id + ": " + pending.piece + " (" + pending.size + " x" + pending.quantity + ")")
+      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity, price_shown: pending.price || "-", payment: pending.cod ? "Cash on delivery (+" + CONFIG.codFee + ")" : "UPI, full amount" }, "Order " + pending.id + (pending.cod ? " [COD]" : " [UPI]") + ": " + pending.piece + " (" + pending.size + " x" + pending.quantity + ")")
         .then(function (r) { showDone(contact, !!r.demo); })
         .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
     });
@@ -699,7 +717,8 @@
         openOrder(p, size, n, order);
       };
       var bar = el("div", "buybar"); bar.appendChild(order); mBuy.appendChild(bar);
-      mBuy.appendChild(el("p", "note", CONFIG.shippingLine ? CONFIG.shippingLine + ". Prepaid only: pay by UPI or card through a secure Razorpay link." : "Shipping all over India. Prepaid only: after you order, we text you a secure Razorpay payment link (UPI or card)."));
+      var payLine = "Pay online by UPI" + (CONFIG.codFee ? ", or cash on delivery (" + CONFIG.codFee + " extra)." : ".");
+      mBuy.appendChild(el("p", "note", (CONFIG.shippingLine || "Shipping all over India") + ". " + payLine));
       if (p.story) mBuy.appendChild(el("p", "m-desc", p.story));
       var dl = el("ul"); (p.details || []).forEach(function (d) { var li = el("li"); li.appendChild(el("span", null, d[0])); li.appendChild(el("span", null, d[1])); dl.appendChild(li); }); mBuy.appendChild(dl);
 
