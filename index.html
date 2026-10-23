@@ -226,6 +226,34 @@
   .sheet-ok.on { display: grid; }
   .sheet-ok h4 { margin: 0; font: 400 20px "Archivo Black", sans-serif; text-transform: uppercase; }
   .sheet-x { justify-self: start; background: none; border: 0; color: var(--muted); font: 500 13px "Archivo", sans-serif; cursor: pointer; text-decoration: underline; padding: 6px 0; }
+  .sheet-card h3[tabindex]:focus { outline: none; }
+  .sum-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-weight: 400; }
+  .sum-lines li, .sum-tot { display: flex; justify-content: space-between; gap: 12px; }
+  .sum-tot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .sum-tot.fee { font-weight: 400; border-top: 0; margin-top: 2px; padding-top: 0; }
+  #bag-sum .sum-tot:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+
+  /* bag */
+  .bagbtn { border: 0; background: none; color: var(--ink); font: 500 14px "Archivo", sans-serif; cursor: pointer; padding: 8px 0; }
+  .bagbtn:hover { color: var(--red); }
+  .bagbtn b { font-weight: 600; }
+  .m-top-r { display: flex; gap: 18px; align-items: center; }
+  .buy2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .added { font-size: 13px; color: var(--muted); min-height: 1.3em; margin-top: -6px; }
+  .added button, .linkbtn { background: none; border: 0; padding: 4px 0; font: 500 13px "Archivo", sans-serif; color: var(--ink); text-decoration: underline; cursor: pointer; }
+  .linkbtn { color: var(--muted); }
+  .bag-lines { list-style: none; margin: 0; padding: 0; display: grid; }
+  .bag-lines li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .bag-lines li:first-child { border-top: 0; padding-top: 0; }
+  .bag-lines li.empty { display: block; color: var(--muted); }
+  .bag-th { width: 64px; height: 64px; background: #ECEAE3; position: relative; }
+  .bag-th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+  .bag-info { display: grid; gap: 2px; font-size: 14px; align-content: start; }
+  .bag-info b { font-weight: 600; }
+  .bag-info .gone { color: #B3261E; }
+  .bag-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+  .qty.sm button { width: 34px; height: 34px; font-size: 16px; }
+  .qty.sm output { min-width: 32px; font-size: 14px; }
 
   footer { border-top: 2px solid var(--ink); padding: 32px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
 
@@ -284,7 +312,7 @@
   <nav>
     <div class="nav-l"><a href="#shop">Shop</a><a href="#custom">Custom</a><a href="#how">How to order</a></div>
     <a class="logo" href="#top" aria-label="Outcast home">out<span>★</span>cast</a>
-    <div class="nav-r"><a class="btn small dark" href="#shop">Shop now</a></div>
+    <div class="nav-r"><button class="bagbtn" type="button" data-bag>Bag (<b class="bag-n">0</b>)</button><a class="btn small dark" href="#shop">Shop now</a></div>
   </nav>
 
   <header class="hero" id="top">
@@ -369,7 +397,7 @@
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" aria-hidden="true" tabindex="-1">
   <div class="m-top">
     <a class="logo" href="#top" id="m-logo" aria-label="Outcast">out<span>★</span>cast</a>
-    <button class="m-close" id="m-close" type="button">Close</button>
+    <div class="m-top-r"><button class="bagbtn" type="button" data-bag>Bag (<b class="bag-n">0</b>)</button><button class="m-close" id="m-close" type="button">Close</button></div>
   </div>
   <div class="m-body">
     <div class="m-img" id="m-img"></div>
@@ -401,6 +429,16 @@
       <p id="sheet-ok-text"></p>
     </div>
     <button class="sheet-x" id="sheet-close" type="button">Close</button>
+  </div>
+</div>
+
+<div class="sheet" id="bagsheet" role="dialog" aria-modal="true" aria-labelledby="bag-title" aria-hidden="true">
+  <div class="sheet-card">
+    <h3 id="bag-title" tabindex="-1">Your bag</h3>
+    <ul class="bag-lines" id="bag-lines"></ul>
+    <div class="sheet-sum" id="bag-sum"></div>
+    <button class="btn red block" type="button" id="bag-go">Place order</button>
+    <button class="sheet-x" id="bag-close" type="button">Keep shopping</button>
   </div>
 </div>
 
@@ -506,16 +544,23 @@
         a.focus();
       } else if (!ok.querySelector(".pay-bit")) sheetClose.focus();
     }
-    function openOrder(p, size, qty, from) {
+    /* checkout: everything in the bag that is still listed goes into one order */
+    function codPicked() { var c = form.querySelector("input[name=opay]:checked"); return !!CONFIG.codFee && !!c && c.value === "COD"; }
+    function paintSum() { sheetSum.innerHTML = ""; summary(sheetSum, pending.lines, codPicked()); }
+    function openCheckout(from) {
+      var lines = bag.map(liveLine).filter(function (l) { return !l.gone; });
+      if (!lines.length) return;
       sheetFrom = from || document.activeElement;
-      pending = { piece: p.name + " (" + p.type + ")", price: p.price, size: size, quantity: String(qty), pay: (p.payLink && /^https:\/\//.test(p.payLink)) ? p.payLink : "" };
-      sheetSum.textContent = p.name + " · size " + size + " · quantity " + qty + (p.price ? " · " + p.price + " each" : "");
+      /* a Razorpay link is for one piece at a fixed amount, so it's only offered for a single piece */
+      pending = { lines: lines, pay: lines.length === 1 && lines[0].qty === 1 ? lines[0].pay : "" };
       document.getElementById("o-cod").style.display = CONFIG.codFee ? "" : "none";
       document.getElementById("o-cod-note").textContent = CONFIG.codFee + " extra, paid in cash when your parcel arrives.";
       form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
+      paintSum();
       sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
       document.getElementById("o-name").focus();
     }
+    form.addEventListener("change", function (e) { if (e.target.name === "opay" && pending) paintSum(); });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var name = document.getElementById("o-name").value.trim(), contact = document.getElementById("o-contact").value.trim(), addr = document.getElementById("o-addr").value.trim();
@@ -526,27 +571,131 @@
       if (addr.length < 10 || !/\d{6}/.test(addr.replace(/\s/g, ""))) { bad(oErr, "o-addr", "Add your full delivery address with the 6-digit pincode."); return; }
       oErr.textContent = "";
       pending.id = orderId(); pending.name = name;
-      pending.cod = form.querySelector("input[name=opay]:checked").value === "COD" && !!CONFIG.codFee;
+      pending.cod = codPicked();
       if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
       oSend.disabled = true; oSend.textContent = "Sending...";
-      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, piece: pending.piece, size: pending.size, quantity: pending.quantity, price_shown: pending.price || "-", payment: pending.cod ? "Cash on delivery (+" + CONFIG.codFee + ")" : "UPI, full amount" }, "Order " + pending.id + (pending.cod ? " [COD]" : " [UPI]") + ": " + pending.piece + " (" + pending.size + " x" + pending.quantity + ")")
-        .then(function (r) { showDone(contact, !!r.demo); })
+      var L = pending.lines, t = totals(L, pending.cod), count = 0;
+      L.forEach(function (l) { count += l.qty; });
+      var items = L.map(function (l) { return l.name + " (" + l.type + ") · " + l.size + " × " + l.qty + " · " + (l.price ? l.price + " each" : "price not shown"); }).join("\n");
+      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, items: items, item_count: String(count), subtotal_shown: isNaN(t.sub) ? "-" : inr(t.sub), payment: pending.cod ? "Cash on delivery (+" + CONFIG.codFee + ")" : "UPI, full amount" },
+        "Order " + pending.id + (pending.cod ? " [COD]" : " [UPI]") + ": " + (L.length === 1 ? L[0].name + " (" + L[0].size + " x" + L[0].qty + ")" : count + " items"))
+        .then(function (r) { bag = []; saveBag(); bagCount(); showDone(contact, !!r.demo); })
         .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
     });
     sheetClose.onclick = closeSheet;
     sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
-    document.addEventListener("keydown", function (e) {
-      if (!sheet.classList.contains("open")) return;
-      if (e.key === "Escape") { e.stopPropagation(); closeSheet(); return; }
-      if (e.key === "Tab") {
-        var f = [].slice.call(sheet.querySelectorAll("input:not([aria-hidden]), textarea, button:not([disabled])")).filter(function (x) { return x.offsetParent !== null; });
-        if (!f.length) return;
-        e.stopPropagation();
-        var i = f.indexOf(document.activeElement);
-        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
-        else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
-      }
-    }, true);
+    /* Escape closes a sheet and Tab stays inside it (runs before the product page's own keys) */
+    function sheetKeys(sh, close) {
+      document.addEventListener("keydown", function (e) {
+        if (!sh.classList.contains("open")) return;
+        if (e.key === "Escape") { e.stopPropagation(); close(); return; }
+        if (e.key === "Tab") {
+          var f = [].slice.call(sh.querySelectorAll("a[href], input:not([aria-hidden]), textarea, button:not([disabled])")).filter(function (x) { return x.offsetParent !== null; });
+          if (!f.length) return;
+          e.stopPropagation();
+          var i = f.indexOf(document.activeElement);
+          if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+          else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+        }
+      }, true);
+    }
+    sheetKeys(sheet, closeSheet);
+
+    /* the bag: saved in this browser only, so a buyer can order several pieces at once */
+    var BAG_KEY = "outcast-bag", bag = [], sheetDone = !CONFIG.sheetId;
+    try { bag = JSON.parse(localStorage.getItem(BAG_KEY) || "[]"); } catch (e) {}
+    bag = (Array.isArray(bag) ? bag : []).filter(function (l) { return l && typeof l.name === "string" && typeof l.size === "string" && +l.qty > 0; });
+    function saveBag() { try { localStorage.setItem(BAG_KEY, JSON.stringify(bag)); } catch (e) {} }
+    function pieceNamed(name) { for (var k = 0; k < P.length; k++) if (P[k].name === name) return P[k]; return null; }
+    /* a bag line with the piece's current price and photo; gone once the live list has loaded without it */
+    function liveLine(l) {
+      var p = pieceNamed(l.name);
+      return { name: l.name, size: l.size, qty: Math.min(10, Math.round(+l.qty)), type: p ? p.type : (l.type || ""), price: p ? p.price : "", photo: p ? p.photo : (l.photo || ""), pay: p && /^https:\/\//.test(p.payLink || "") ? p.payLink : "", gone: !p && sheetDone };
+    }
+    function lineAt(p, size) { for (var k = 0; k < bag.length; k++) if (bag[k].name === p.name && bag[k].size === size) return bag[k]; return null; }
+    function addToBag(p, size, qty) {
+      var l = lineAt(p, size);
+      if (l) l.qty = Math.min(10, l.qty + qty); else bag.push({ name: p.name, type: p.type, size: size, qty: qty, photo: p.photo });
+      saveBag(); bagCount();
+    }
+    /* "Order now" sets the line to what's picked instead of adding, so tapping it twice doesn't double the order */
+    function setInBag(p, size, qty) {
+      var l = lineAt(p, size);
+      if (l) l.qty = qty; else bag.push({ name: p.name, type: p.type, size: size, qty: qty, photo: p.photo });
+      saveBag(); bagCount();
+    }
+    /* "₹1,499" -> 1499. Anything else (a range, "TBC") -> NaN, so a total is only shown when it's right */
+    function rupees(s) { var m = /^\s*(?:₹|rs\.?|inr)?\s*(\d[\d,]*(?:\.\d+)?)\s*$/i.exec(s || ""); return m ? Math.round(+m[1].replace(/,/g, "")) : NaN; }
+    function inr(n) { return "₹" + n.toLocaleString("en-IN"); }
+    function totals(lines, cod) {
+      var pieces = 0, fee = cod ? rupees(CONFIG.codFee) : 0;
+      lines.forEach(function (l) { pieces += rupees(l.price) * l.qty; });
+      return { pieces: pieces, fee: fee, sub: pieces + fee };
+    }
+    function summary(box, lines, cod, totalOnly) {
+      var ul = el("ul", "sum-lines"), t = totals(lines, cod);
+      if (!totalOnly) lines.forEach(function (l) {
+        var li = el("li"), each = rupees(l.price);
+        li.appendChild(el("span", null, l.name + " · " + l.size + " × " + l.qty));
+        li.appendChild(el("span", null, isNaN(each) ? (l.price || "Price to confirm") : inr(each * l.qty)));
+        ul.appendChild(li);
+      });
+      if (!totalOnly) box.appendChild(ul);
+      if (isNaN(t.pieces)) return;
+      function row(a, b, cls) { var d = el("div", "sum-tot" + (cls ? " " + cls : "")); d.appendChild(el("span", null, a)); d.appendChild(el("span", null, b)); box.appendChild(d); }
+      if (cod && !isNaN(t.fee)) { row("Pieces", inr(t.pieces)); row("Cash on delivery", "+" + inr(t.fee), "fee"); row("Subtotal", inr(t.sub), "fee"); }
+      else row("Subtotal", inr(t.pieces));
+    }
+
+    var bagSheet = document.getElementById("bagsheet"), bagLines = document.getElementById("bag-lines"), bagSum = document.getElementById("bag-sum"), bagGo = document.getElementById("bag-go"), bagFrom = null;
+    function bagCount() {
+      var n = 0; bag.forEach(function (l) { n += +l.qty; });
+      [].forEach.call(document.querySelectorAll(".bag-n"), function (x) { x.textContent = n; });
+      [].forEach.call(document.querySelectorAll("[data-bag]"), function (b) { b.setAttribute("aria-label", "Bag, " + n + (n === 1 ? " item" : " items")); });
+    }
+    function paintBagSum() {
+      var ok = bag.map(liveLine).filter(function (l) { return !l.gone; });
+      bagSum.innerHTML = ""; if (ok.length) summary(bagSum, ok, false, true);
+      bagSum.style.display = bagSum.firstChild ? "" : "none"; bagGo.disabled = !ok.length;
+    }
+    function renderBag() {
+      bagLines.innerHTML = "";
+      if (!bag.length) bagLines.appendChild(el("li", "empty", "Your bag is empty."));
+      bag.forEach(function (raw, k) {
+        var l = liveLine(raw), li = el("li"), th = el("div", "bag-th"), info = el("div", "bag-info"), row = el("div", "bag-row");
+        if (l.photo) { var im = el("img"); im.src = l.photo; im.alt = ""; th.appendChild(im); }
+        info.appendChild(el("b", null, l.name));
+        info.appendChild(el("span", "note" + (l.gone ? " gone" : ""), l.gone ? "No longer available, so it won't be ordered" : "Size " + l.size + " · " + (l.price ? l.price + " each" : "Price coming soon")));
+        if (!l.gone) {
+          var q = el("div", "qty sm"), out = el("output", null, String(l.qty)), minus = el("button", null, "−"), plus = el("button", null, "+");
+          minus.type = plus.type = "button"; minus.setAttribute("aria-label", "Fewer " + l.name); plus.setAttribute("aria-label", "More " + l.name);
+          var setQ = function (v) { raw.qty = v; out.textContent = v; saveBag(); bagCount(); paintBagSum(); };
+          minus.onclick = function () { if (raw.qty > 1) setQ(raw.qty - 1); };
+          plus.onclick = function () { if (raw.qty < 10) setQ(raw.qty + 1); };
+          q.appendChild(minus); q.appendChild(out); q.appendChild(plus); row.appendChild(q);
+        }
+        var rm = el("button", "linkbtn", "Remove"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + l.name + ", size " + l.size);
+        rm.onclick = function () { bag.splice(k, 1); saveBag(); bagCount(); renderBag(); document.getElementById("bag-title").focus(); };
+        row.appendChild(rm); info.appendChild(row);
+        li.appendChild(th); li.appendChild(info); bagLines.appendChild(li);
+      });
+      paintBagSum();
+    }
+    function openBag(from) {
+      bagFrom = from || document.activeElement; renderBag();
+      bagSheet.classList.add("open"); bagSheet.setAttribute("aria-hidden", "false");
+      document.getElementById("bag-title").focus();
+    }
+    function closeBag(keepFocus) {
+      bagSheet.classList.remove("open"); bagSheet.setAttribute("aria-hidden", "true");
+      if (!keepFocus && bagFrom && document.body.contains(bagFrom)) bagFrom.focus();
+    }
+    [].forEach.call(document.querySelectorAll("[data-bag]"), function (b) { b.onclick = function () { openBag(b); }; });
+    bagGo.onclick = function () { closeBag(true); openCheckout(bagFrom); };
+    document.getElementById("bag-close").onclick = function () { closeBag(); };
+    bagSheet.addEventListener("click", function (e) { if (e.target === bagSheet) closeBag(); });
+    sheetKeys(bagSheet, function () { closeBag(); });
+    bagCount();
 
     /* on a laptop, hovering a piece shows its back. Skipped on phones, where a tap would leave it stuck on the back */
     var canHover = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -717,12 +866,15 @@
       minus.onclick = function () { setN(Math.max(1, n - 1)); };
       plus.onclick = function () { setN(Math.min(10, n + 1)); };
       qty.appendChild(minus); qty.appendChild(out); qty.appendChild(plus); q.appendChild(qty); mBuy.appendChild(q);
-      var order = el("button", "btn red block", "Place order"); order.type = "button";
-      order.onclick = function () {
-        var size = modal.querySelector("input[name=msize]:checked").value;
-        openOrder(p, size, n, order);
+      function picked() { return modal.querySelector("input[name=msize]:checked").value; }
+      var add = el("button", "btn", "Add to bag"), order = el("button", "btn red", "Order now"), added = el("p", "added");
+      add.type = order.type = "button"; added.setAttribute("role", "status");
+      add.onclick = function () {
+        var s = picked(), vb = el("button", null, "View bag"); addToBag(p, s, n);
+        added.textContent = "Added size " + s + " × " + n + ". "; vb.type = "button"; vb.onclick = function () { openBag(add); }; added.appendChild(vb);
       };
-      var bar = el("div", "buybar"); bar.appendChild(order); mBuy.appendChild(bar);
+      order.onclick = function () { setInBag(p, picked(), n); openCheckout(order); };
+      var bar = el("div", "buybar"), two = el("div", "buy2"); two.appendChild(add); two.appendChild(order); bar.appendChild(two); mBuy.appendChild(bar); mBuy.appendChild(added);
       var payLine = "Pay online by UPI" + (CONFIG.codFee ? ", or cash on delivery (" + CONFIG.codFee + " extra)." : ".");
       mBuy.appendChild(el("p", "note", (CONFIG.shippingLine || "Shipping all over India") + ". " + payLine));
       if (p.story) mBuy.appendChild(el("p", "m-desc", p.story));
@@ -821,7 +973,8 @@
           renderRack(); renderFilters(); renderGrid(); reveal(rackIn.children); rackEnds();
           if (modal.classList.contains("open")) { current = -1; fromHash(); }
         })
-        .catch(function () { /* keep the built-in list */ });
+        .catch(function () { /* keep the built-in list */ })
+        .then(function () { sheetDone = true; if (bagSheet.classList.contains("open")) renderBag(); bagCount(); });
     }
 
     /* custom design form */
