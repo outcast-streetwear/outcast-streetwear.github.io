@@ -254,6 +254,10 @@
   .bag-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
   .qty.sm button { width: 34px; height: 34px; font-size: 16px; }
   .qty.sm output { min-width: 32px; font-size: 14px; }
+  .story { display: grid; grid-template-columns: 92px 1fr; gap: 14px; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; }
+  .story img { width: 92px; height: auto; aspect-ratio: 9/16; display: block; border: 1px solid var(--line); }
+  .story-in { display: grid; gap: 8px; }
+  .story p { font-size: 13px; color: var(--muted); }
 
   footer { border-top: 2px solid var(--ink); padding: 32px 0 56px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
 
@@ -531,9 +535,72 @@
 
     var sheet = document.getElementById("sheet"), sheetSum = document.getElementById("sheet-sum"), form = document.getElementById("order-form"), oErr = document.getElementById("o-err"), oSend = document.getElementById("o-send"), ok = document.getElementById("sheet-ok"), okText = document.getElementById("sheet-ok-text"), sheetClose = document.getElementById("sheet-close"), sheetFrom = null, pending = null;
     function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); if (sheetFrom && document.body.contains(sheetFrom)) sheetFrom.focus(); }
+    /* a story-sized picture of the order the buyer can post or keep. No name, phone or address on it */
+    var STAR = "M32 9l6.5 15.5 16.8 1.3-12.8 10.9 4 16.3L32 44.2 17.5 53l4-16.3L8.7 25.8l16.8-1.3z";
+    function storyCard(id, lines) {
+      var W = 1080, H = 1920, c = el("canvas"), x = c.getContext("2d");
+      c.width = W; c.height = H;
+      if (!x) return Promise.reject(new Error("no canvas"));
+      var fonts = document.fonts && document.fonts.load ? Promise.all([document.fonts.load('400 120px "Archivo Black"'), document.fonts.load('600 40px "Archivo"')]) : Promise.resolve();
+      function within(pr, ms) { return Promise.race([pr, new Promise(function (r) { setTimeout(r, ms); })]).catch(function () {}); }
+      function load(src) {
+        return new Promise(function (res) {
+          if (!src) return res(null);
+          var im = new Image(); im.crossOrigin = "anonymous";
+          im.onload = function () { res(im); }; im.onerror = function () { res(null); }; setTimeout(function () { res(null); }, 6000);
+          im.src = src;
+        });
+      }
+      function star(px, py, size) { if (!window.Path2D) return; x.save(); x.translate(px, py); x.scale(size / 64, size / 64); x.fillStyle = "#E0261D"; x.fill(new Path2D(STAR)); x.restore(); }
+      function cut(t, w) { if (x.measureText(t).width <= w) return t; while (t && x.measureText(t + "…").width > w) t = t.slice(0, -1); return t + "…"; }
+      function centre(t, y) { x.fillText(t, (W - x.measureText(t).width) / 2, y); }
+      function draw(photo) {
+        x.fillStyle = "#F4F3EF"; x.fillRect(0, 0, W, H);
+        x.fillStyle = "#0E0E0E"; x.font = '400 120px "Archivo Black", Impact, sans-serif';
+        var a = x.measureText("out").width, b = x.measureText("cast").width, sz = 116, x0 = (W - a - sz - b) / 2;
+        x.fillText("out", x0, 250); x.fillText("cast", x0 + a + sz, 250); star(x0 + a, 154, sz);
+        x.fillStyle = "#6B6963"; x.font = '600 36px "Archivo", sans-serif'; if ("letterSpacing" in x) x.letterSpacing = "6px";
+        centre("ORDER SENT", 370); if ("letterSpacing" in x) x.letterSpacing = "0px";
+        x.fillStyle = "#0E0E0E"; x.font = '400 132px "Archivo Black", Impact, sans-serif'; centre(id, 510);
+        x.fillStyle = "#ECEAE3"; x.fillRect(90, 580, 900, 900);
+        if (photo) {
+          var k = Math.min(720 / photo.naturalWidth, 720 / photo.naturalHeight), w = photo.naturalWidth * k, h = photo.naturalHeight * k;
+          x.drawImage(photo, 90 + (900 - w) / 2, 580 + (900 - h) / 2, w, h);
+        } else star(290, 760, 500);
+        x.fillStyle = "#0E0E0E"; x.font = '400 60px "Archivo Black", Impact, sans-serif';
+        lines.slice(0, 2).forEach(function (l, k) { x.fillText(cut(l.name.toUpperCase(), 900), 90, 1590 + k * 76); });
+        if (lines.length > 2) { x.fillStyle = "#6B6963"; x.font = '600 40px "Archivo", sans-serif'; x.fillText("+ " + (lines.length - 2) + " more", 90, 1730); }
+        x.fillStyle = "#0E0E0E"; x.fillRect(90, 1780, 900, 4);
+        x.font = '600 44px "Archivo", sans-serif'; x.fillText("@" + CONFIG.instagram, 90, 1856);
+        x.fillStyle = "#6B6963"; x.font = '400 36px "Archivo", sans-serif'; var m = "Made in India"; x.fillText(m, 990 - x.measureText(m).width, 1856);
+      }
+      function png() { return new Promise(function (res, rej) { try { c.toBlob(function (bl) { bl ? res(bl) : rej(new Error("no image")); }, "image/png"); } catch (e) { rej(e); } }); }
+      return within(fonts, 2500).then(function () { return load(lines[0] && lines[0].photo); }).then(function (photo) {
+        draw(photo);
+        /* a photo from another site without permission to read it blocks the export: redraw without it */
+        return png().catch(function () { if (!photo) throw new Error("no image"); draw(null); return png(); });
+      });
+    }
+    function addCard(id, lines) {
+      storyCard(id, lines).then(function (blob) {
+        if (!pending || pending.id !== id || !ok.classList.contains("on")) return;
+        var url = URL.createObjectURL(blob), name = "outcast-" + id + ".png", file = null;
+        try { file = new File([blob], name, { type: "image/png" }); } catch (e) {}
+        var box = el("div", "story card-bit"), inner = el("div", "story-in"), im = el("img");
+        im.src = url; im.alt = "Your order card for " + id; im.width = 92; im.height = 164;
+        inner.appendChild(el("p", null, "Your order card. Post it to your story and tag @" + CONFIG.instagram + "."));
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          var sh = el("button", "btn small dark", "Share to story"); sh.type = "button";
+          sh.onclick = function () { navigator.share({ files: [file], title: "My " + CONFIG.brand + " order" }).catch(function () {}); };
+          inner.appendChild(sh);
+        }
+        var sv = el("a", "btn small", "Save image"); sv.href = url; sv.download = name; inner.appendChild(sv);
+        box.appendChild(im); box.appendChild(inner); ok.appendChild(box);
+      }).catch(function () { /* the order ID in the text above is still there */ });
+    }
     function showDone(contact, demo) {
       form.style.display = "none"; ok.classList.add("on");
-      [].slice.call(ok.querySelectorAll(".pay-bit")).forEach(function (x) { x.remove(); });
+      [].slice.call(ok.querySelectorAll(".pay-bit, .card-bit")).forEach(function (x) { x.remove(); });
       okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
         : "Your order ID is " + pending.id + ". " + (pending.cod
             ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives, plus the " + CONFIG.codFee + " cash on delivery charge."
@@ -543,6 +610,7 @@
         ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
         a.focus();
       } else if (!ok.querySelector(".pay-bit")) sheetClose.focus();
+      addCard(pending.id, pending.lines);
     }
     /* checkout: everything in the bag that is still listed goes into one order */
     function codPicked() { var c = form.querySelector("input[name=opay]:checked"); return !!CONFIG.codFee && !!c && c.value === "COD"; }
