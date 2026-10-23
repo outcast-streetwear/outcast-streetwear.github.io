@@ -101,6 +101,7 @@
   @media (max-width: 440px) { .grid { gap: 12px; } }
   @media (hover: hover) {
     .grid .slide:hover .frame { background: #E3E0D8; }
+    .grid .slide:hover .frame.dark { background: #262624; }
   }
   .grid { align-items: start; }
 
@@ -133,7 +134,9 @@
   @keyframes sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
   /* piece view stage */
   .pv { position: relative; display: grid; gap: 14px; }
-  .pv-g { position: relative; width: 100%; aspect-ratio: 1/1; background: #ECEAE3; display: grid; place-items: center; padding: 9%; }
+  .pv-g { position: relative; width: 100%; aspect-ratio: 1/1; background: #ECEAE3; display: grid; place-items: center; padding: 9%; transition: background .2s; }
+  /* light garments sit on a dark card so they stand out */
+  .frame.dark, .pv-g.dark { background: #1C1C1B; }
   .pv-g .garment { height: 100%; display: flex; align-items: center; justify-content: center; }
   .pv-g .g-img { height: 100%; width: 100%; object-fit: contain; transition: opacity .18s; }
   .pv-g .g-img.fade { opacity: 0; }
@@ -794,9 +797,29 @@
       el2.addEventListener("mouseenter", function () { var im = el2.querySelector("img"); if (im) im.src = p.photoBack; });
       el2.addEventListener("mouseleave", function () { var im = el2.querySelector("img"); if (im) im.src = p.photo; });
     }
+    /* is this photo a light garment? Counts how much of the garment itself (not the transparent background) is near-white.
+       Only works for photos on this site; photos from elsewhere (e.g. Google Drive) keep the normal light card */
+    var LIGHT = {};
+    function isLight(src, cb) {
+      if (src in LIGHT) { if (LIGHT[src] !== null) cb(LIGHT[src]); return; }
+      LIGHT[src] = null;
+      var im = new Image();
+      im.onload = function () {
+        try {
+          var c = document.createElement("canvas"); c.width = c.height = 48;
+          var x = c.getContext("2d"); x.drawImage(im, 0, 0, 48, 48);
+          var d = x.getImageData(0, 0, 48, 48).data, white = 0, n = 0;
+          for (var k = 0; k < d.length; k += 4) if (d[k + 3] > 128) { n++; if (0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2] > 215) white++; }
+          LIGHT[src] = n > 0 && white / n > 0.3;
+        } catch (e) { LIGHT[src] = false; }
+        cb(LIGHT[src]);
+      };
+      im.src = src;
+    }
+    function shade(box, src) { if (src) isLight(src, function (light) { box.classList.toggle("dark", light); }); }
     function frame(p, withTag) {
       var f = el("div", "frame");
-      if (p.photo) { var img = el("img"); img.loading = "lazy"; img.decoding = "async"; img.width = 620; img.height = 520; img.src = p.photo; img.alt = p.name; f.appendChild(img); }
+      if (p.photo) { var img = el("img"); img.loading = "lazy"; img.decoding = "async"; img.width = 620; img.height = 520; img.src = p.photo; img.alt = p.name; f.appendChild(img); shade(f, p.photo); }
       else { var ph = el("div"); ph.appendChild(el("b", null, p.type)); ph.appendChild(document.createTextNode("Photo goes here")); f.appendChild(ph); }
       if (withTag && p.tag) f.appendChild(el("span", "tag", p.tag));
       return f;
@@ -874,6 +897,7 @@
       var fb = el("button", null, "Front"), bb = el("button", null, "Back"); fb.type = bb.type = "button";
       function paint() {
         holder.innerHTML = ""; holder.appendChild(garment(p, i, side)); if (!p.photo) holder.appendChild(tagEl(p, i));
+        shade(holder, side === "back" ? p.photoBack : p.photo);
         fb.setAttribute("aria-pressed", side === "front" ? "true" : "false"); bb.setAttribute("aria-pressed", side === "back" ? "true" : "false");
       }
       function flip(to) {
