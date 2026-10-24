@@ -6,7 +6,7 @@ A one-page shop site for Outcast (@outcastt.in), live at https://outcast-streetw
 Open `index.html` and edit the `CONFIG` block near the bottom.
 
 **1. Orders inbox**
-- Orders go through [Web3Forms](https://web3forms.com). The `orderAccessKey` decides which inbox receives them (currently Daksh's Gmail).
+- Orders go through [Web3Forms](https://web3forms.com). The `orderAccessKey` decides which inbox receives them.
 - To send orders to the brand instead, create a key at web3forms.com with the brand's email and replace `orderAccessKey`.
 - Leave `orderEndpoint` empty to run in demo mode (nothing is sent).
 
