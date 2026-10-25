@@ -1,6 +1,6 @@
 # Outcast website (draft)
 
-A one-page shop site for Outcast (@outcastt.in), live at https://outcast-streetwear.github.io. Customers pick a piece, fill in their details on the site, and the order is emailed to the brand. If a Razorpay link is set, a **Pay now** button appears after the order is sent.
+A one-page shop site for Outcast (@outcastt.in), live at https://outcast-streetwear.github.io. Customers pick a piece, fill in their details on the site, and the order is emailed to the brand. Every order is paid upfront by UPI. There is no cash on delivery.
 
 ## To finish it
 Open `index.html` and edit the `CONFIG` block near the bottom.
@@ -23,11 +23,11 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
 - Images go in `images/` as `.webp` cutouts on a transparent background.
 - Prices, headlines and stories: set them after the list, e.g. `CONFIG.products[0].price = "₹1,499";`
 
-**3. Payment**
-- Set `upiId` to the brand's UPI ID (a business UPI ID works best). UPI orders then get a **Pay now** button that opens the customer's UPI app with the amount and order ID filled in, or a QR code on laptops. Match payments to orders by the order ID in the payment note.
+**3. Payment (UPI only)**
+- Every order is paid in full by UPI before it ships. There is no cash on delivery.
+- **With `upiId` set** (the brand's UPI ID, a business one works best): after sending the order, the customer gets a **Pay** button that opens their UPI app with the amount and order ID filled in, or a QR code on a laptop. Match payments to orders by the order ID in the payment note.
+- **With `upiId` empty** (as now): the customer is told the brand will send UPI payment details to their mobile number. The brand must then message each customer from the order email.
 - Addresses are checked with India Post's free pincode lookup (api.postalpincode.in): a pincode that doesn't exist can't be ordered to. If the lookup is down, orders still go through.
-- In the brand's own Razorpay dashboard, create a Payment Link per product and paste its public URL (`https://rzp.io/...`) into that product's `payLink`.
-- A payment link has a fixed amount, so **Pay now** only appears when the order is one piece, quantity 1. Bigger orders get UPI details by message.
 
 **4. Bag and order card**
 - Buyers can add several pieces to a bag (saved only in their own browser) and send them as one order. The order email lists every piece, and a subtotal when every price is a plain number.
@@ -41,7 +41,7 @@ Open `index.html` and edit the `CONFIG` block near the bottom.
 - A new piece whose preview hasn't been built yet still works: its link opens the piece, just with the general preview picture.
 - Old links like `#piece-3` still open a piece, but by its position in the list, so they can point to a different piece after the sheet is reordered.
 
-**Never put a password or a Razorpay key secret in this repo.** The endpoint, the access key and payment links are public values by design.
+**Never put a password or any secret key in this repo.** The endpoint, the access key and the UPI ID are public values by design.
 
 `images/og.jpg` is the preview picture shown when the link is shared on WhatsApp or Instagram.
 

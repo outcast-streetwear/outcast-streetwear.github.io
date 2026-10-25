@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- DRAFT: placeholder content. Real photos, names, prices, stories and Razorpay links come from the brand. -->
+<!-- DRAFT: placeholder content. Real photos, names, prices and stories come from the brand. -->
 <title>Outcast · Graphic streetwear, shipped all over India</title>
 <meta name="description" content="Outcast makes graphic oversized tees, hoodies and custom designs. Order online. Shipping all over India.">
 <meta name="robots" content="noindex, nofollow">
@@ -29,6 +29,7 @@
     --muted: #6B6963;
     --line: #D9D7D0;
     --red: #E0261D;
+    --red-text: #C11F17; /* the red for small text: 4.5:1 or more on the page background */
     --red-ink: #FFFFFF;
     --sw: min(72vw, 400px);
   }
@@ -51,7 +52,7 @@
   .nav-l, .nav-r { display: flex; gap: 22px; align-items: center; font-size: 14px; font-weight: 500; }
   .nav-r { justify-content: flex-end; }
   .nav-l a, .nav-r a:not(.btn) { text-decoration: none; }
-  .nav-l a:hover { color: var(--red); }
+  .nav-l a:hover { color: var(--red-text); }
   .logo { font-family: "Archivo Black", sans-serif; font-size: 26px; text-decoration: none; text-transform: lowercase; letter-spacing: -0.02em; }
   .logo span { color: var(--red); }
   @media (max-width: 640px) { nav { grid-template-columns: auto 1fr; } .nav-l { display: none; } .logo { justify-self: start; } }
@@ -62,7 +63,7 @@
   .btn.red:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
   .btn.dark { background: var(--ink); color: var(--bg); }
   .btn.dark:hover { background: var(--red); border-color: var(--red); color: var(--red-ink); }
-  .btn.small { padding: 11px 16px; font-size: 12px; }
+  .btn.small { padding: 11px 16px; font-size: 12px; min-height: 44px; }
   .btn.block { width: 100%; }
 
   /* hero + carousel */
@@ -93,7 +94,7 @@
   .sec-head h2 { font-size: clamp(32px, 5.5vw, 60px); margin-top: 10px; }
 
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
-  .chip { border: 2px solid var(--line); background: none; color: var(--ink); padding: 8px 14px; font: 600 12px "Archivo", sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+  .chip { border: 2px solid var(--line); background: none; color: var(--ink); padding: 8px 14px; min-height: 44px; font: 600 12px "Archivo", sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
   .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
   .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 18px; }
@@ -143,9 +144,9 @@
   .pv-ctrl { display: flex; align-items: center; justify-content: center; gap: 14px; }
   .pv-g .tag-hang { width: 62px; font-size: 13px; right: 4%; top: 22%; }
   .pv-toggle { display: inline-flex; border: 2px solid var(--ink); }
-  .pv-toggle button { border: 0; background: none; padding: 9px 18px; font: 600 12px "Archivo", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--ink); }
+  .pv-toggle button { border: 0; background: none; padding: 9px 18px; min-height: 44px; font: 600 12px "Archivo", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--ink); }
   .pv-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-  .pv-arrow { width: 42px; height: 42px; border: 2px solid var(--ink); border-radius: 50%; background: var(--bg); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 3; }
+  .pv-arrow { width: 44px; height: 44px; border: 2px solid var(--ink); border-radius: 50%; background: var(--bg); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 3; }
   .pv-arrow:hover { background: var(--ink); color: var(--bg); }
   @media (prefers-reduced-motion: reduce) { .tag-hang { animation: none; } .garment { transition: none; } }
 
@@ -154,7 +155,7 @@
   .modal.open { display: block; }
   .modal:focus { outline: none; }
   .m-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
-  .m-close { border: 2px solid var(--ink); background: none; color: var(--ink); padding: 9px 14px; font: 600 12px "Archivo", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .m-close { border: 2px solid var(--ink); background: none; color: var(--ink); padding: 9px 14px; min-height: 44px; font: 600 12px "Archivo", sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
   .m-close:hover { background: var(--ink); color: var(--bg); }
   .m-body { max-width: 72rem; margin: 0 auto; padding: 28px 20px 64px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: start; }
   @media (max-width: 860px) { .m-body { grid-template-columns: 1fr; gap: 24px; padding-top: 16px; } }
@@ -174,7 +175,7 @@
   .sizes input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .sizes input:focus-visible + span { outline: 3px solid var(--red); outline-offset: 2px; }
   .qty { display: inline-flex; border: 2px solid var(--line); background: var(--surface); }
-  .qty button { width: 42px; height: 42px; border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--ink); }
+  .qty button { width: 44px; height: 44px; border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--ink); }
   .qty button:hover { background: var(--ink); color: var(--bg); }
   .qty output { min-width: 44px; display: grid; place-items: center; font-weight: 600; }
   .note { font-size: 13px; color: var(--muted); }
@@ -185,7 +186,7 @@
   .guide th, .guide td { text-align: left; font-weight: 400; padding: 7px 12px 7px 0; border-top: 1px solid var(--line); white-space: nowrap; }
   .guide thead th { color: var(--muted); font-weight: 600; border-top: 0; }
   .guide tr.on th, .guide tr.on td { font-weight: 600; }
-  .guide tr.on th::after { content: " ←"; color: var(--red); }
+  .guide tr.on th::after { content: " ←"; color: var(--red-text); }
   .guide p { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
   /* custom */
@@ -232,33 +233,26 @@
   .pin-ok.bad { color: #B3261E; }
   .upi-qr { display: grid; justify-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); padding: 12px; }
   .upi-qr img { width: 180px; height: 180px; image-rendering: pixelated; }
-  .payopts { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
-  .payopts legend { font-size: 13px; color: var(--muted); font-weight: 500; padding: 0; margin-bottom: 6px; }
-  .payopts label { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; border: 2px solid var(--line); background: var(--surface); padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
-  .payopts label:has(input:checked) { border-color: var(--ink); }
-  .payopts input { accent-color: var(--ink); margin: 0; }
-  .payopts small { grid-column: 2; font-weight: 400; color: var(--muted); font-size: 12.5px; }
   .sheet-sum { font-size: 14px; font-weight: 600; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 0; }
   .sheet-ok { border: 2px solid var(--ink); background: var(--surface); padding: 14px; display: none; gap: 8px; }
   .sheet-ok.on { display: grid; }
   .sheet-ok h4 { margin: 0; font: 400 20px "Archivo Black", sans-serif; text-transform: uppercase; }
-  .sheet-x { justify-self: start; background: none; border: 0; color: var(--muted); font: 500 13px "Archivo", sans-serif; cursor: pointer; text-decoration: underline; padding: 6px 0; }
+  .sheet-x { justify-self: start; background: none; border: 0; color: var(--muted); font: 500 13px "Archivo", sans-serif; cursor: pointer; text-decoration: underline; padding: 6px 0; min-height: 44px; }
   .sheet-card h3[tabindex]:focus { outline: none; }
   .sum-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-weight: 400; }
   .sum-lines li, .sum-tot { display: flex; justify-content: space-between; gap: 12px; }
   .sum-tot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
-  .sum-tot.fee { font-weight: 400; border-top: 0; margin-top: 2px; padding-top: 0; }
   #bag-sum .sum-tot:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
 
   /* bag */
-  .bagbtn { border: 0; background: none; color: var(--ink); font: 500 14px "Archivo", sans-serif; cursor: pointer; padding: 8px 0; }
-  .bagbtn:hover { color: var(--red); }
+  .bagbtn { border: 0; background: none; color: var(--ink); font: 500 14px "Archivo", sans-serif; cursor: pointer; padding: 8px 4px; min-height: 44px; }
+  .bagbtn:hover { color: var(--red-text); }
   .bagbtn b { font-weight: 600; }
   .m-top-r { display: flex; gap: 18px; align-items: center; }
   .buy2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .added { font-size: 13px; color: var(--muted); min-height: 1.3em; margin-top: -6px; }
   .added button, .linkbtn { background: none; border: 0; padding: 4px 0; font: 500 13px "Archivo", sans-serif; color: var(--ink); text-decoration: underline; cursor: pointer; }
-  .linkbtn { color: var(--muted); }
+  .linkbtn { color: var(--muted); min-height: 44px; }
   .bag-lines { list-style: none; margin: 0; padding: 0; display: grid; }
   .bag-lines li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
   .bag-lines li:first-child { border-top: 0; padding-top: 0; }
@@ -335,6 +329,10 @@
     <a class="logo" href="#top" aria-label="Outcast home">out<span>★</span>cast</a>
     <div class="nav-r"><button class="bagbtn" type="button" data-bag>Bag (<b class="bag-n">0</b>)</button><a class="btn small dark" href="#shop">Shop now</a></div>
   </nav>
+</div>
+
+<main>
+<div class="wrap">
 
   <header class="hero" id="top">
     <span class="mono">Graphic streetwear · Made in India</span>
@@ -383,7 +381,7 @@
       <form class="right" id="custom-form" novalidate>
         <label class="f">Your name<input type="text" id="c-name" autocomplete="name" placeholder="e.g. Aarav"></label>
         <label class="f">Piece
-          <select id="c-piece"><option>Oversized tee</option><option>Boxy crop tee</option><option>Ringer tee</option><option>Shirt</option><option>Long sleeve</option><option>Hoodie</option><option>Zip hoodie</option></select>
+          <select id="c-piece"><option>Oversized tee</option><option>Ringer tee</option><option>Shirt</option><option>Long sleeve</option><option>Zip hoodie</option></select>
         </label>
         <label class="f">Size
           <select id="c-size"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
@@ -405,7 +403,10 @@
       <li><h3>We ship it</h3><p>Packed and sent free to anywhere in India. You get tracking once it leaves.</p></li>
     </ol>
   </section>
+</div>
+</main>
 
+<div class="wrap">
   <footer>
     <span>© <span id="yr"></span> Outcast</span>
     <span><a href="https://www.instagram.com/outcastt.in/" target="_blank" rel="noopener">@outcastt.in on Instagram</a></span>
@@ -442,11 +443,6 @@
       <datalist id="o-areas"></datalist>
       <div class="pin-ok" id="o-pin-ok" aria-live="polite"></div>
       <input type="text" id="o-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
-      <fieldset class="payopts" id="o-pay">
-        <legend>Payment</legend>
-        <label><input type="radio" name="opay" value="UPI" checked>Pay online by UPI<small>GPay, PhonePe or Paytm. We send you the payment details after you order.</small></label>
-        <label id="o-cod"><input type="radio" name="opay" value="COD">Cash on delivery<small id="o-cod-note"></small></label>
-      </fieldset>
       <button class="btn red block" type="submit" id="o-send">Send order</button>
       <div class="err" id="o-err" role="status" aria-live="polite"></div>
       <p class="how" style="font-size:12px;color:var(--muted)">Your details are used only for this order (<a href="policies.html#privacy" target="_blank">privacy</a>).</p>
@@ -514,8 +510,6 @@
     shippingLine: "Free shipping all over India",
     /* one price per type, used for any piece without its own price, e.g. "Oversized tee": "₹899" */
     pricesByType: {},
-    /* extra charge for cash on delivery, shown to the customer. "" removes the cash on delivery option */
-    codFee: "",
     /* the brand's UPI ID for instant payment, e.g. "outcast@ybl" (a business UPI ID works best).
        When set, UPI orders get a "Pay now" button on phones and a QR code on laptops. "" hides it */
     upiId: "",
@@ -658,12 +652,10 @@
       form.style.display = "none"; ok.classList.add("on");
       [].slice.call(ok.querySelectorAll(".pay-bit, .card-bit")).forEach(function (x) { x.remove(); });
       okText.textContent = demo ? "Demo mode: nothing was sent. When the brand connects an order inbox, this order goes straight to them."
-        : "Your order ID is " + pending.id + ". " + (pending.cod
-            ? "We'll contact you on +91 " + contact + " to confirm, then ship it. Pay in cash when it arrives, plus the " + CONFIG.codFee + " cash on delivery charge."
-            : upiReady() ? "Pay " + inr(pending.total) + " now with any UPI app to confirm it. We ship once it's paid."
+        : "Your order ID is " + pending.id + ". " + (upiReady() ? "Pay " + inr(pending.total) + " now with any UPI app to confirm it. We ship once it's paid."
             : pending.pay ? "Pay below to confirm it." : "We'll send UPI payment details to +91 " + contact + ". We ship once it's paid.") + " Screenshot this for reference.";
-      if (!demo && !pending.cod && upiReady()) { upiPay(); return addCard(pending.id, pending.lines); }
-      if (pending && pending.pay && !pending.cod) {
+      if (!demo && upiReady()) { upiPay(); return addCard(pending.id, pending.lines); }
+      if (pending && pending.pay) {
         var a = el("a", "btn dark block pay-bit", "Pay now (UPI / card)"); a.href = pending.pay; a.target = "_blank"; a.rel = "noopener";
         ok.appendChild(a); ok.appendChild(el("p", "note pay-bit", "Payment is handled securely by Razorpay. Your order is confirmed once you pay."));
         a.focus();
@@ -671,23 +663,18 @@
       addCard(pending.id, pending.lines);
     }
     /* checkout: everything in the bag that is still listed goes into one order */
-    function codPicked() { var c = form.querySelector("input[name=opay]:checked"); return !!CONFIG.codFee && !!c && c.value === "COD"; }
-    function paintSum() { sheetSum.innerHTML = ""; summary(sheetSum, pending.lines, codPicked()); }
+    function paintSum() { sheetSum.innerHTML = ""; summary(sheetSum, pending.lines); }
     function openCheckout(from) {
       var lines = bag.map(liveLine).filter(function (l) { return !l.gone; });
       if (!lines.length) return;
       sheetFrom = from || document.activeElement;
       /* a Razorpay link is for one piece at a fixed amount, so it's only offered for a single piece */
       pending = { lines: lines, pay: lines.length === 1 && lines[0].qty === 1 ? lines[0].pay : "" };
-      document.getElementById("o-cod").style.display = CONFIG.codFee ? "" : "none";
-      document.getElementById("o-pay").style.display = CONFIG.codFee ? "" : "none";
-      document.getElementById("o-cod-note").textContent = CONFIG.codFee + " extra, paid in cash when your parcel arrives.";
       form.style.display = "grid"; ok.classList.remove("on"); oErr.textContent = ""; oSend.disabled = false; oSend.textContent = "Send order";
       paintSum();
       sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
       document.getElementById("o-name").focus();
     }
-    form.addEventListener("change", function (e) { if (e.target.name === "opay" && pending) paintSum(); });
     /* pincode check: India Post's free lookup says whether a pincode exists and gives its district, state and areas */
     var PIN = {}, pinBox = document.getElementById("o-pin"), pinOk = document.getElementById("o-pin-ok"), areaList = document.getElementById("o-areas");
     function lookupPin(pin) {
@@ -734,15 +721,14 @@
     });
     function placeOrder(name, contact, ig, addr) {
       pending.id = orderId(); pending.name = name;
-      pending.cod = codPicked();
       if (document.getElementById("o-trap").value) { showDone(contact, false); return; }
       oSend.disabled = true; oSend.textContent = "Sending...";
-      var L = pending.lines, t = totals(L, pending.cod), count = 0;
-      pending.total = t.sub;
+      var L = pending.lines, t = totals(L), count = 0;
+      pending.total = t;
       L.forEach(function (l) { count += l.qty; });
       var items = L.map(function (l) { return l.name + " (" + l.type + ") · " + l.size + " × " + l.qty + " · " + (l.price ? l.price + " each" : "price not shown"); }).join("\n");
-      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, items: items, item_count: String(count), subtotal_shown: isNaN(t.sub) ? "-" : inr(t.sub), payment: pending.cod ? "Cash on delivery (+" + CONFIG.codFee + ")" : "UPI, full amount" },
-        "Order " + pending.id + (pending.cod ? " [COD]" : " [UPI]") + ": " + (L.length === 1 ? L[0].name + " (" + L[0].size + " x" + L[0].qty + ")" : count + " items"))
+      sendOrder({ order_id: pending.id, name: name, phone: "+91 " + contact, instagram: ig || "-", address: addr, items: items, item_count: String(count), subtotal_shown: isNaN(t) ? "-" : inr(t), payment: "UPI, full amount" },
+        "Order " + pending.id + " [UPI]: " + (L.length === 1 ? L[0].name + " (" + L[0].size + " x" + L[0].qty + ")" : count + " items"))
         .then(function (r) { bag = []; saveBag(); bagCount(); showDone(contact, !!r.demo); })
         .catch(function () { oErr.textContent = FAIL; oSend.disabled = false; oSend.textContent = "Send order"; });
     }
@@ -791,13 +777,13 @@
     /* "₹1,499" -> 1499. Anything else (a range, "TBC") -> NaN, so a total is only shown when it's right */
     function rupees(s) { var m = /^\s*(?:₹|rs\.?|inr)?\s*(\d[\d,]*(?:\.\d+)?)\s*$/i.exec(s || ""); return m ? Math.round(+m[1].replace(/,/g, "")) : NaN; }
     function inr(n) { return "₹" + n.toLocaleString("en-IN"); }
-    function totals(lines, cod) {
-      var pieces = 0, fee = cod ? rupees(CONFIG.codFee) : 0;
+    function totals(lines) {
+      var pieces = 0;
       lines.forEach(function (l) { pieces += rupees(l.price) * l.qty; });
-      return { pieces: pieces, fee: fee, sub: pieces + fee };
+      return pieces;
     }
-    function summary(box, lines, cod, totalOnly) {
-      var ul = el("ul", "sum-lines"), t = totals(lines, cod);
+    function summary(box, lines, totalOnly) {
+      var ul = el("ul", "sum-lines"), t = totals(lines);
       if (!totalOnly) lines.forEach(function (l) {
         var li = el("li"), each = rupees(l.price);
         li.appendChild(el("span", null, l.name + " · " + l.size + " × " + l.qty));
@@ -805,10 +791,8 @@
         ul.appendChild(li);
       });
       if (!totalOnly) box.appendChild(ul);
-      if (isNaN(t.pieces)) return;
-      function row(a, b, cls) { var d = el("div", "sum-tot" + (cls ? " " + cls : "")); d.appendChild(el("span", null, a)); d.appendChild(el("span", null, b)); box.appendChild(d); }
-      if (cod && !isNaN(t.fee)) { row("Pieces", inr(t.pieces)); row("Cash on delivery", "+" + inr(t.fee), "fee"); row("Total", inr(t.sub), "fee"); }
-      else row("Total", inr(t.pieces));
+      if (isNaN(t)) return;
+      var d = el("div", "sum-tot"); d.appendChild(el("span", null, "Total")); d.appendChild(el("span", null, inr(t))); box.appendChild(d);
     }
 
     var bagSheet = document.getElementById("bagsheet"), bagLines = document.getElementById("bag-lines"), bagSum = document.getElementById("bag-sum"), bagGo = document.getElementById("bag-go"), bagFrom = null;
@@ -819,7 +803,7 @@
     }
     function paintBagSum() {
       var ok = bag.map(liveLine).filter(function (l) { return !l.gone; });
-      bagSum.innerHTML = ""; if (ok.length) summary(bagSum, ok, false, true);
+      bagSum.innerHTML = ""; if (ok.length) summary(bagSum, ok, true);
       bagSum.style.display = bagSum.firstChild ? "" : "none"; bagGo.disabled = !ok.length;
     }
     function renderBag() {
@@ -1100,8 +1084,7 @@
       };
       order.onclick = function () { setInBag(p, picked(), n); openCheckout(order); };
       var bar = el("div", "buybar"), two = el("div", "buy2"); two.appendChild(add); two.appendChild(order); bar.appendChild(two); mBuy.appendChild(bar); mBuy.appendChild(added);
-      var payLine = "Pay online by UPI" + (CONFIG.codFee ? ", or cash on delivery (" + CONFIG.codFee + " extra)." : ".");
-      mBuy.appendChild(el("p", "note", (CONFIG.shippingLine || "Shipping all over India") + ". " + payLine));
+      mBuy.appendChild(el("p", "note", (CONFIG.shippingLine || "Shipping all over India") + ". Pay online by UPI."));
       /* shares the piece's preview page (p/<slug>/), which shows its own picture on WhatsApp and Instagram */
       var shr = el("button", "linkbtn", "Share this piece"), said = el("span", "note"); shr.type = "button"; said.setAttribute("role", "status");
       shr.onclick = function () {
